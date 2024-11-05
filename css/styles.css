@@ -1,0 +1,152 @@
+body {
+    background: #1B1B25;
+    color: #fff;
+    font-family: 'Josefin Sans', sans-serif;
+    margin: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+hr {
+    width: 75%;
+    margin: 0 auto;
+    border: 0.5px solid #fff;
+}
+
+.title, .summary, .work-experience h2 {
+    text-align: center;
+}
+
+.title a {
+    text-decoration: none;
+    color: #1ee97a;
+}
+
+.title a:hover, .title a:focus {
+    font-weight: bold;
+}
+
+.icon-list {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    justify-content: center;
+    margin: 20px 0;
+    font-size: 3rem;
+}
+
+.summary {
+    padding: 20px;
+}
+
+.summary p {
+    font-size: 1.2rem;
+    letter-spacing: .1rem;
+    line-height: 1.6;
+}
+
+.skills {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.skills div {
+    flex: 1 1 150px;
+    text-align: center;
+}
+
+.skills span {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: block;
+}
+
+.work-experience .experience-title {
+    display: flex;
+    line-height: 1.5rem;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 50px;
+}
+
+.work-experience .dates {
+    text-align: right;
+    min-width: 150px;
+    margin-left: 20px;
+}
+
+.work-experience h3, .work-experience h4, .work-experience h5 {
+    margin: 0;
+}
+
+.work-experience p {
+    font-size: 1rem;
+    letter-spacing: .1rem;
+    margin-top: 1rem;
+    line-height: 1.6;
+}
+
+/* slider */
+.slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 300px;
+    margin: 0 auto;
+    gap: 5px;
+}
+
+.vwrap {
+    overflow: hidden;
+    flex: 1;
+    height: 50px;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 5px;
+}
+
+.vmove {
+    position: relative;
+    animation: slidev 12s infinite;
+}
+
+.vmove:hover {
+    animation-play-state: paused;
+}
+
+.vslide {
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 50px;
+}
+
+@keyframes slidev {
+    0% { bottom: 0; }
+    24% { bottom: 0; }
+    25% { bottom: 100%; }
+    49% { bottom: 100%; }
+    50% { bottom: 200%; }
+    74% { bottom: 200%; }
+    75% { bottom: 300%; }
+    99% { bottom: 300%; }
+    100% { bottom: 0; }
+}
+
+.fixed-text {
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex: 1;
+    text-align: left;
+    margin-left: 5px;
+}
