@@ -1,0 +1,15 @@
+title: AppSecCharlie
+description: "Charlie Williams - Application Security Engineer"
+url: "https://appseccharlie.com"
+baseurl: ""
+
+markdown: kramdown
+permalink: pretty
+
+github: [metadata]
+kramdown:
+  input: GFM
+  hard_wrap: false
+future: true
+
+theme: ""
