@@ -11,5 +11,3 @@ kramdown:
   input: GFM
   hard_wrap: false
 future: true
-
-theme: ""
