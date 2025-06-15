@@ -5,31 +5,39 @@ layout: null
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1B1B25">
 
-    gtag('config', 'G-S85VD3EJY5');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Charlie Williams - Application Security Engineer">
-    <meta name="keywords" content="Charlie Williams, Application Security Engineer, Cybersecurity, Secure Development, Product Security, AppSec, AppSecCharlie">
-    <title>Charlie Williams - Application Security Engineer</title>
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/devicons@1.8.0/css/devicons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preload" as="style" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet"/>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5"></script>
+  <script defer src="/assets/js/gtag-init.js"></script>
+
+  <link
+    rel="stylesheet"
+    href="/css/styles.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/devicons/devicon@2.16.0/devicon.min.css">
+  <title>Charlie Williams - Application Security Engineer</title>
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
     <div class="container">
         <header class="title">
             <h1>Charlie Williams</h1>
-            <div class="slider-container">
+            <div class="slider-container" aria-live="polite" aria-label="Areas of expertise rotating">
                 <div class="vwrap">
                     <div class="vmove">
                         <div class="vslide">Application</div>
@@ -43,20 +51,89 @@ layout: null
                 </div>
                 <div class="fixed-text">Security</div>
             </div>
-            
-            <h4>
-                <a href="https://x.com/AppSecCharlie" target="_blank" aria-label="X profile of AppSecCharlie">x/@AppSecCharlie</a> | 
-                <a href="http://linkedin.com/in/charlie-williams3" target="_blank" aria-label="LinkedIn profile of Charlie Williams">linkedin/charlie-williams3</a>
-            </h4>
             <ul class="icon-list">
-                <li><i class="devicons devicons-github_badge" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-python" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-java" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-visualstudio" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-android" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-apple" aria-hidden="true"></i></li>
-                <li><i class="devicons devicons-aws" aria-hidden="true"></i></li>
+                <li>
+                    <i class="devicon-github-original"
+                       title="GitHub"
+                       role="img"
+                       aria-label="GitHub">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-githubactions-plain"
+                       title="GitHub Actions"
+                       role="img"
+                       aria-label="GitHub Actions">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-python-plain"
+                       title="Python"
+                       role="img"
+                       aria-label="Python">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-java-plain"
+                       title="Java"
+                       role="img"
+                       aria-label="Java">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-azuresqldatabase-plain"
+                       title="SQL"
+                       role="img"
+                       aria-label="SQL">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-amazonwebservices-plain"
+                       title="AWS"
+                       role="img"
+                       aria-label="AWS">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-terraform-plain"
+                       title="Terraform"
+                       role="img"
+                       aria-label="Terraform">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-visualstudio-plain"
+                       title="Visual Studio"
+                       role="img"
+                       aria-label="Visual Studio">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-android-plain"
+                       title="Android"
+                       role="img"
+                       aria-label="Android">
+                    </i>
+                </li>
+                <li>
+                    <i class="devicon-apple-original"
+                       title="Apple"
+                       role="img"
+                       aria-label="Apple">
+                    </i>
+                </li>
             </ul>
+            <div class="social-links">
+                <a href="https://x.com/AppSecCharlie"
+                   target="_blank"
+                   rel="noopener"
+                   aria-label="X profile">x/@AppSecCharlie</a>
+                <span class="separator">|</span>
+                <a href="https://linkedin.com/in/charlie-williams3"
+                   target="_blank"
+                   rel="noopener"
+                   aria-label="LinkedIn profile">linkedin/charlie-williams3</a>
+              </div>
             <hr />
         </header>
 
@@ -64,9 +141,13 @@ layout: null
             <section class="summary">
                 <h2>Summary</h2>
                 <p>
-                    Seasoned Application Security Engineer with over 8 years of experience safeguarding complex software
-                    ecosystems. Expert in building robust security frameworks, guiding development teams on best practices, 
-                    and proactively mitigating risks across cloud and on-prem environments to ensure resilient, secure software.
+                    Application Security Engineer with over 9 years of experience architecting, deploying, 
+                    and scaling robust security programs in both enterprise and startup environments. 
+                    Passionate about product security and user privacy, I empower teams to weave security 
+                    into every phase of the development lifecycle- leveraging SAST, SCA, DevSecOps, and 
+                    cloud/API protections- without slowing velocity. By driving data-driven insights and metrics,
+                    I focus on the highest-impact interventions to deliver resilient, secure software that supports 
+                    business goals.
                 </p>
                 <div class="skills">
                     <div>
@@ -95,7 +176,7 @@ layout: null
                     </div>
                 </div>
             </section>
-            
+
             <hr />
             <section class="work-experience">
                 <h2>Work Experience</h2>
@@ -108,10 +189,13 @@ layout: null
                         </div>
                         <div class="dates"><time datetime="2013-04">April 2013</time> - Present</div>
                     </div>
-                    <p>Leading Application Security as part of Upside's Product Security team, embedding security within
-                        the development lifecycle to uphold code quality, velocity, and developer empowerment. Delivered tools 
-                        and guidance for secure coding, enhancing security awareness through metrics, and advancing automated security 
-                        practices. Collaborated across teams to streamline security integration, providing actionable metrics.
+                    <p>Leading the Application Security program within Upside's Product Security team by embedding 
+                    security into the product development lifecycle to enhance code quality and sustain rapid delivery.
+                    Design and deliver developer-centric secure-coding tools and best practices.
+                    Harness data engineering to produce actionable security metrics and champion automated controls 
+                    (SAST, SCA, IaC scanning) across engineering teams.
+                    Partner with product and engineering to streamline security workflows, strengthen overall posture, 
+                    accelerate delivery, and enable data-driven business decisions.
                     </p>
                 </div>
                 <div class="experience">
@@ -121,14 +205,18 @@ layout: null
                             <h4>Lead Engineer</h4>
                             <h5>Application Security</h5>
                         </div>
-                        <div class="dates"><time datetime="2016-01">January 2016</time> - <time datetime="2023-04">April 2023</time></div>
+                        <div class="dates"><time datetime="2016-01">January 2016</time> - <time datetime="2023-04">April
+                                2023</time></div>
                     </div>
-                    <p>Helped establish the U.S. Department of Veterans Affairs' first Application Security program, safeguarding patient data and enhancing security 
-                        for thousands of applications. Conducted SAST scans using Fortify and collaborated with teams to reinforce secure coding practices across hybrid environments.
+                    <p>Helped establish the U.S. Department of Veterans Affairs' first Application Security program,
+                        safeguarding patient data and enhancing security
+                        for thousands of applications. Conducted SAST scans using Fortify and collaborated with teams to
+                        reinforce secure coding practices across hybrid environments.
                     </p>
                 </div>
             </section>
         </main>
     </div>
 </body>
+
 </html>
