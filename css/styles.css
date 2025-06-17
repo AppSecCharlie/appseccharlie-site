@@ -30,6 +30,7 @@ body {
   color: var(--fg);
   font-family: var(--font-base);
   margin: 0;
+  padding-block-start: var(--space-md);
 }
 
 .container {
@@ -62,21 +63,33 @@ hr {
 }
 
 .social-links {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-block: var(--space-sm);
-  font-size: var(--fs-base);
+  position: relative;
+  max-width: 500px;
+  margin-inline: auto;
 }
 
 .social-links a {
   color: var(--accent);
   text-decoration: none;
-  margin-inline: var(--space-xs);
   font-weight: bold;
+  flex: 1;
 }
 
-.social-links a:hover,
-.social-links a:focus {
-  text-decoration: underline;
+.social-links a:first-child {
+  text-align: end;
+}
+
+.social-links a:last-child {
+  text-align: start;
+}
+
+.social-links .separator {
+  color: var(--fg);
+  padding-inline: var(--space-xs);
 }
 
 .icon-list {
