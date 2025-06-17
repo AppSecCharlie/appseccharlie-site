@@ -64,19 +64,21 @@ hr {
 
 .social-links {
   display: flex;
+  flex-wrap: wrap; /* Allows wrapping on small screens */
   justify-content: center;
   align-items: center;
-  margin-block: var(--space-sm);
-  position: relative;
-  max-width: 500px;
-  margin-inline: auto;
+  gap: var(--space-sm, 1rem); /* Use your spacing variable or fallback */
+  list-style: none;
+  padding: 0;
+  margin: var(--space-md, 1.5rem) 0;
 }
 
 .social-links a {
-  color: var(--accent);
+  color: var(--accent, #0077cc);
   text-decoration: none;
   font-weight: bold;
-  flex: 1;
+  font-size: 1rem;
+  word-break: break-all; /* Helps long emails wrap on small screens */
 }
 
 .social-links a:first-child {
