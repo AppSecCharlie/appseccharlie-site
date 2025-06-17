@@ -45,7 +45,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { repo, owner } = context.repo;
-            const message = github.event.head_commit.message;
+            const commit = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref: github.sha
+            });
+            const message = commit.data.commit.message;
 
             let latestTag = 'v1.0.0';
             try {
