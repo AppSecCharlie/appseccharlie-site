@@ -47,7 +47,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { repo, owner, sha } = context;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.sha;
+
             const commit = await github.rest.repos.getCommit({
               owner,
               repo,
