@@ -66,7 +66,7 @@ jobs:
               core.info('Incrementing major version');
             } else if (message.startsWith('feat')) {
               minor += 1; patch = 0;
-              core.info(Incrementing minor version');
+              core.info('Incrementing minor version');
             } else if (message.startsWith('chore') || message.startsWith('fix')) {
               patch += 1;
               core.info(`Incrementing patch version`);
