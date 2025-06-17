@@ -289,4 +289,19 @@ h2 {
     font-size: 1.2rem;
     block-size: 1.4rem;
   }
+  
+  .vmove {
+    animation-name: slidev-mobile;
+  }
+  
+  @keyframes slidev-mobile {
+    0% { transform: translateY(0); }
+    14.285% { transform: translateY(-1.4rem); }
+    28.57% { transform: translateY(-2.8rem); }
+    42.855% { transform: translateY(-4.2rem); }
+    57.14% { transform: translateY(-5.6rem); }
+    71.425% { transform: translateY(-7rem); }
+    85.71% { transform: translateY(-8.4rem); }
+    100% { transform: translateY(0); }
+  }
 }
