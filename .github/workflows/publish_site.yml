@@ -1,8 +1,10 @@
-name: Build and Deploy
+name: Deploy and Release
 
 on:
   push:
     branches: ["main"]
+    paths:
+      - 'public/**'
 
 permissions:
   contents: write
@@ -10,42 +12,37 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-  release:
-    needs: build
+      - name: Upload public/ to GitHub Pages
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+
+  autorelease:
     runs-on: ubuntu-latest
-    if: github.event.head_commit.id == github.sha
+    needs: deploy
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.sha }}
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Semver Bump Tag/Release
-        uses: actions/github-script@v7
-        id: semantic_release
+      - name: Semver Tag/Release
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const sha = context.sha;
-            
+
             const commit = await github.rest.repos.getCommit({
               owner,
               repo,
@@ -53,14 +50,14 @@ jobs:
             });
             const message = commit.data.commit.message;
 
-            let latestTag = 'v1.0.0';
+            let latestTag = 'v0.0.0';
             try {
               const tags = await github.rest.repos.listTags({ owner, repo, per_page: 1 });
               if (tags.data.length > 0) latestTag = tags.data[0].name;
             } catch {}
-            
+
             let [major, minor, patch] = latestTag.replace(/^v/, '').split('.').map(Number);
-            
+
             if (message.startsWith('BREAKING CHANGE')) {
               major += 1; minor = 0; patch = 0;
               core.info('Incrementing major version');
@@ -69,21 +66,21 @@ jobs:
               core.info('Incrementing minor version');
             } else if (message.startsWith('chore') || message.startsWith('fix')) {
               patch += 1;
-              core.info(`Incrementing patch version`);
+              core.info('Incrementing patch version');
             } else {
               minor += 1; patch = 0;
               core.info('Defaulting to minor version increment');
             }
-            
+
             const newTag = `v${major}.${minor}.${patch}`;
-            
+
             await github.rest.git.createRef({
               owner,
               repo,
               ref: `refs/tags/${newTag}`,
               sha: sha
             });
-            
+
             await github.rest.repos.createRelease({
               owner,
               repo,
@@ -93,16 +90,5 @@ jobs:
               draft: false,
               prerelease: false
             });
-            
-            core.info(`Created release ${newTag}`);
 
-  deploy:
-    needs: [build, release]
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+            core.info(`Created release ${newTag}`);
