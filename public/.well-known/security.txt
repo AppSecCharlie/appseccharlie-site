@@ -1,5 +1,5 @@
-Contact:             mailto:security@appseccharlie.com
-Encryption:          https://appseccharlie.com/.well-known/pub.asc
-Expires:             2026-03-11T00:00:00Z
-Canonical:           https://appseccharlie.com/.well-known/security.txt
+Contact: mailto:this@appseccharlie.com
+Encryption: https://appseccharlie.com/.well-known/pub.asc
+Expires: 2027-09-01T00:00:00Z
+Canonical: https://appseccharlie.com/.well-known/security.txt
 Preferred-Languages: en

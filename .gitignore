@@ -4,3 +4,7 @@ _site/
 .jekyll-metadata
 vendor/
 .act/
+node_modules/
+playwright-report/
+test-results/
+test-artifacts/
