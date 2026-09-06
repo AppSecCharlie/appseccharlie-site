@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% set resolvedTitle = metaTitle or title ~ " | Charlie Williams" %}
+    {% set resolvedDescription = description or site.description %}
+    {% set resolvedCanonical = canonicalUrl or site.url ~ page.url %}
+    <meta charset="UTF-8">
+    <title>{{ resolvedTitle }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="description" content="{{ resolvedDescription }}">
+    <link rel="canonical" href="{{ resolvedCanonical }}">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="theme-color" content="#1B1B25">
+    <meta name="author" content="Charlie Williams">
+
+    <meta property="og:title" content="{{ resolvedTitle }}">
+    <meta property="og:description" content="{{ resolvedDescription }}">
+    <meta property="og:url" content="{{ resolvedCanonical }}">
+    <meta property="og:type" content="{{ ogType or 'website' }}">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
+    <link rel="preload" as="style" href="/css/styles.css" fetchpriority="high">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="preload" as="script" href="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5"></script>
+    <script defer src="/assets/js/gtag-init.js"></script>
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+</head>
+
+<body{% if bodyClass %} class="{{ bodyClass }}"{% endif %}>
+    <div class="container{% if containerClass %} {{ containerClass }}{% endif %}">
+        <nav class="site-nav" aria-label="Primary">
+            <a href="/">Home</a>
+            <span aria-hidden="true">|</span>
+            <a href="/field-notes/">Field Notes</a>
+        </nav>
+        {{ content | safe }}
+    </div>
+</body>
+
+</html>

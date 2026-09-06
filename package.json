@@ -2,10 +2,12 @@
   "name": "appseccharlie-site",
   "private": true,
   "scripts": {
-    "dev": "python3 -m http.server 4173 --bind 127.0.0.1 --directory public",
+    "build": "eleventy",
+    "dev": "eleventy --serve --port=4173",
     "test": "playwright test"
   },
   "devDependencies": {
+    "@11ty/eleventy": "3.1.6",
     "@playwright/test": "1.62.1"
   }
 }

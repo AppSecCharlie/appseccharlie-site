@@ -165,6 +165,11 @@ test('renders the expected social and contact destinations', async ({ page }) =>
 test('social links have a readable keyboard focus indicator', async ({ page }) => {
   await loadPage(page);
 
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Home' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+
   const links = page.locator('.social-links a');
   for (let index = 0; index < await links.count(); index += 1) {
     await page.keyboard.press('Tab');

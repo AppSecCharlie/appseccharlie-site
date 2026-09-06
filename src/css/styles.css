@@ -54,6 +54,31 @@ hr {
   padding-inline: var(--space-sm);
 }
 
+.site-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-block: var(--space-xs) var(--space-lg);
+  font-size: var(--fs-base);
+}
+
+.site-nav a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: var(--space-xxs);
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+.site-nav a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 h2 {
   text-align: center;
 }
