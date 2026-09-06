@@ -1,0 +1,73 @@
+import { test, expect } from '@playwright/test';
+import { access, cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import { execFile } from 'node:child_process';
+
+const execFileAsync = promisify(execFile);
+const projectRoot = path.resolve('.');
+const eleventyBinary = path.join(projectRoot, 'node_modules', '.bin', 'eleventy');
+
+test('production output excludes draft notes from the collection and filesystem', async () => {
+  const indexHtml = await readFile(path.join(projectRoot, '_site', 'field-notes', 'index.html'), 'utf8');
+
+  expect(indexHtml).not.toContain('Turning Judgment into Infrastructure');
+  await expect(access(path.join(
+    projectRoot,
+    '_site',
+    'field-notes',
+    'turning-judgment-into-infrastructure',
+    'index.html'
+  ))).rejects.toMatchObject({ code: 'ENOENT' });
+});
+
+test('published notes render Markdown at clean URLs in newest-first order', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'field-notes-eleventy-'));
+  const inputDir = path.join(root, 'src');
+  const outputDir = path.join(root, '_site');
+
+  try {
+    await cp(path.join(projectRoot, 'src'), inputDir, { recursive: true });
+    await cp(
+      path.join(projectRoot, 'eleventy.config.js'),
+      path.join(root, 'eleventy.config.js')
+    );
+
+    const firstNote = await readFile(
+      path.join(projectRoot, 'src', 'field-notes', 'turning-judgment-into-infrastructure.md'),
+      'utf8'
+    );
+    await writeFile(
+      path.join(inputDir, 'field-notes', 'turning-judgment-into-infrastructure.md'),
+      firstNote.replace('draft: true', 'draft: false')
+    );
+    await writeFile(
+      path.join(inputDir, 'field-notes', 'earlier-note.md'),
+      `---\ntitle: Earlier note\ndate: 2026-08-01\ndescription: An earlier published note.\ndraft: false\n---\n\nEarlier body.\n`
+    );
+    await writeFile(
+      path.join(inputDir, 'field-notes', 'newer-draft.md'),
+      `---\ntitle: Newer draft\ndate: 2026-10-01\ndescription: This must stay private.\ndraft: true\n---\n\nDraft body.\n`
+    );
+
+    await execFileAsync(eleventyBinary, [], { cwd: root });
+
+    const indexHtml = await readFile(path.join(outputDir, 'field-notes', 'index.html'), 'utf8');
+    const noteHtml = await readFile(path.join(
+      outputDir,
+      'field-notes',
+      'turning-judgment-into-infrastructure',
+      'index.html'
+    ), 'utf8');
+
+    expect(indexHtml.indexOf('Turning Judgment into Infrastructure'))
+      .toBeLessThan(indexHtml.indexOf('Earlier note'));
+    expect(indexHtml).not.toContain('Newer draft');
+    expect(noteHtml).toContain('<p>A lot of security automation starts with a task:');
+    expect(noteHtml).toContain('href="/field-notes/"');
+    expect(noteHtml).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

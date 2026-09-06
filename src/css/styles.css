@@ -79,6 +79,123 @@ hr {
   outline-offset: 3px;
 }
 
+.field-notes-index a,
+.field-note a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: var(--space-xxs);
+}
+
+.field-notes-index a:hover,
+.field-notes-index a:focus-visible,
+.field-note a:hover,
+.field-note a:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+.field-notes-index a:focus-visible,
+.field-note a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.notes-container {
+  inline-size: min(90%, 760px);
+}
+
+.field-notes-index > h1,
+.field-notes-index > .notes-intro,
+.field-note > header {
+  text-align: center;
+}
+
+.field-notes-index > h1,
+.field-note h1 {
+  font-size: var(--fs-title);
+  line-height: var(--line-height-tight);
+  margin-block-end: var(--space-xs);
+}
+
+.notes-intro {
+  font-size: var(--fs-medium);
+  line-height: var(--line-height-relaxed);
+  margin-block: 0 var(--space-xl);
+}
+
+.note-summary {
+  border-block-start: 1px solid var(--accent-faded);
+  padding-block: var(--space-lg);
+}
+
+.note-summary h2 {
+  margin: var(--space-xs) 0;
+  text-align: start;
+}
+
+.note-summary h2 a {
+  text-decoration: none;
+}
+
+.note-summary time,
+.field-note time {
+  color: var(--accent);
+}
+
+.note-summary p,
+.note-body {
+  letter-spacing: 0.04rem;
+  line-height: var(--line-height-relaxed);
+}
+
+.note-summary p {
+  margin-block-end: 0;
+}
+
+.field-note > header {
+  margin-block-end: var(--space-xl);
+}
+
+.note-breadcrumb {
+  display: inline-block;
+  margin-block-end: var(--space-sm);
+}
+
+.note-body {
+  font-size: 1.1rem;
+}
+
+.note-body h2,
+.note-body h3 {
+  margin-block: var(--space-xl) var(--space-sm);
+  text-align: start;
+}
+
+.note-body p,
+.note-body ul,
+.note-body ol,
+.note-body blockquote,
+.note-body pre {
+  margin-block: 0 var(--space-md);
+}
+
+.note-body blockquote {
+  margin-inline: 0;
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--space-xxs) solid var(--accent);
+}
+
+.note-body code,
+.note-body pre {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.field-note footer {
+  border-block-start: 1px solid var(--accent-faded);
+  margin-block-start: var(--space-xl);
+  padding-block: var(--space-lg);
+}
+
 h2 {
   text-align: center;
 }
@@ -381,6 +498,13 @@ h2 {
   }
   .title {
     font-size: var(--fs-title-mobile);
+  }
+  .field-notes-index > h1,
+  .field-note h1 {
+    font-size: var(--fs-title-mobile);
+  }
+  .note-body {
+    font-size: var(--fs-base);
   }
   .summary .supporting-positioning {
     font-size: var(--fs-small);

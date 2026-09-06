@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    {% set resolvedTitle = metaTitle or title ~ " | Charlie Williams" %}
+    {% set resolvedTitle = metaTitle or title ~ (titleSuffix or " | Charlie Williams") %}
     {% set resolvedDescription = description or site.description %}
     {% set resolvedCanonical = canonicalUrl or site.url ~ page.url %}
     <meta charset="UTF-8">

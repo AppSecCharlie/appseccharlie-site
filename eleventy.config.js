@@ -1,4 +1,18 @@
+const { rm } = require('node:fs/promises');
+const path = require('node:path');
+
 module.exports = function (eleventyConfig) {
+  eleventyConfig.on('eleventy.before', async ({ directories, runMode }) => {
+    if (runMode !== 'build') return;
+
+    const projectRoot = path.resolve('.');
+    const outputDir = path.resolve(directories.output);
+    if (outputDir === projectRoot || !outputDir.startsWith(`${projectRoot}${path.sep}`)) {
+      throw new Error(`Refusing to clean unsafe Eleventy output directory: ${outputDir}`);
+    }
+    await rm(outputDir, { recursive: true, force: true });
+  });
+
   eleventyConfig.ignores.add('src/assets/**');
   eleventyConfig.ignores.add('src/css/**');
 
@@ -14,6 +28,7 @@ module.exports = function (eleventyConfig) {
     year: 'numeric',
     timeZone: 'UTC'
   }).format(date));
+  eleventyConfig.addFilter('htmlDateString', (date) => date.toISOString().slice(0, 10));
 
   return {
     dir: {
