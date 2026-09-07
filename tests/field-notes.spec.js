@@ -13,8 +13,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function expectPrimaryNavigation(page) {
-  const navigation = page.getByRole('navigation', { name: 'Primary' });
-  await expect(navigation.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
+  const header = page.locator('.site-header');
+  const navigation = header.getByRole('navigation', { name: 'Primary' });
+  await expect(header.getByRole('link', { name: 'Charlie Williams' })).toHaveAttribute('href', '/');
+  await expect(header).not.toContainText('Technical Security Leader');
+  await expect(navigation.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about');
   await expect(navigation.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('href', '/field-notes/');
 }
 
@@ -26,10 +29,36 @@ test('navigates between Home and the production Field Notes index', async ({ pag
   await expect(page).toHaveURL(/\/field-notes\/$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Field Notes');
   await expectPrimaryNavigation(page);
+  await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveClass(/is-active/);
+  await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toHaveCount(0);
 
-  await page.getByRole('link', { name: 'Home' }).click();
+  await page.getByRole('link', { name: 'Charlie Williams' }).click();
   await expect(page).toHaveURL(/\/$/);
+});
+
+test('Field Notes header has a sensible keyboard order', async ({ page }) => {
+  await page.goto('/field-notes/');
+
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Charlie Williams' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.contact-links').getByRole('link', { name: 'Email' })).toBeFocused();
+});
+
+test('Field Notes keeps the homepage signature out and includes the shared contact footer', async ({ page }) => {
+  await page.goto('/field-notes/');
+
+  await expect(page.locator('.visual-signature')).toHaveCount(0);
+  const footer = page.locator('.site-footer');
+  await expect(footer.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:this@appseccharlie.com');
+  await expect(footer.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/in/charlie-williams3');
+  await expect(footer.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/appseccharlie');
+  await expect(footer.getByRole('link', { name: 'X (Twitter)' })).toHaveAttribute('href', 'https://x.com/AppSecCharlie');
 });
 
 test('publishes Field Notes index metadata using the site URL pattern', async ({ page }) => {
@@ -64,6 +93,9 @@ for (const viewport of [
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(viewport.width);
+    await expect(page.locator('.site-descriptor')).toHaveCount(0);
+    expect(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().height))
+      .toBeLessThanOrEqual(64);
     await page.screenshot({
       path: `test-artifacts/screenshots/field-notes-index-${viewport.name}.png`,
       fullPage: true

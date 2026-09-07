@@ -35,6 +35,14 @@ const expectedCapabilities = [
   'Identity & Authorization'
 ];
 
+const expectedCapabilityGroups = [
+  ['Product & Application Security', 'Secure architecture + threat modeling', 'Code + software supply-chain security', 'Developer guardrails + secure defaults'],
+  ['AI & Agent Security', 'MCP + agent trust boundaries', 'Delegated authority + permissions', 'Governance + observability'],
+  ['Security Platforms & Data', 'Policy-as-code + automation', 'Security telemetry + data models', 'Developer workflows + decision-grade metrics'],
+  ['Trust, Fraud & Abuse', 'Account trust + recovery', 'Fraud + abuse signals', 'Risk states + high-risk product controls'],
+  ['Identity & Authorization', 'Authentication + authorization', 'Identity + access controls', 'Delegated permissions + least privilege']
+];
+
 const expectedExperience = [
   ['Manager, Product Security', 'April 2026 – Present'],
   ['Staff Application Security Manager', 'October 2025 – March 2026'],
@@ -105,11 +113,23 @@ test('homepage loads without uncaught errors and applies its production styleshe
 
   await loadPage(page);
 
-  await expect(page.locator('h1')).toHaveText('Charlie Williams');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Charlie Williams' })).toHaveCount(0);
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(27, 27, 37)');
   expect(await page.evaluate(() => typeof window.gtag)).toBe('function');
   expect(await page.evaluate(() => Array.isArray(window.dataLayer))).toBe(true);
   expect(browserErrors).toEqual([]);
+});
+
+test('shared header identifies the site and links to About and Field Notes', async ({ page }) => {
+  await loadPage(page);
+
+  const header = page.locator('.site-header');
+  await expect(header.getByRole('link', { name: 'Charlie Williams' })).toHaveAttribute('href', '/');
+  await expect(header).not.toContainText('Technical Security Leader');
+  await expect(header.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about');
+  await expect(header.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('href', '/field-notes/');
+  await expect(page.locator('#about')).toHaveCount(1);
 });
 
 test('blocks production Google Analytics traffic during browser tests', async ({ page }) => {
@@ -132,16 +152,19 @@ test('blocks production Google Analytics traffic during browser tests', async ({
 test('renders current positioning, capabilities, and complete work history', async ({ page }) => {
   await loadPage(page);
 
-  await expect(page.locator('header')).not.toContainText('Technical Security Leader');
-  await expect(page.locator('header')).not.toContainText('AppSec · AI Security · Identity & Trust');
-  await expect(page.locator('.summary h2')).toHaveText('Technical Security Leader');
+  await expect(page.locator('.visual-signature')).not.toContainText('Technical Security Leader');
+  await expect(page.locator('.visual-signature')).not.toContainText('AppSec · AI Security · Identity & Trust');
+  await expect(page.locator('.summary h2')).toHaveCount(0);
   await expect(page.locator('.summary .supporting-positioning')).toHaveText('AppSec · AI Security · Identity & Trust');
   await expect(page.locator('.summary > p:not(.supporting-positioning)')).toHaveText(expectedSummary);
   await expect(page.locator('.work-experience')).toContainText('Manager, Product Security');
-  await expect(page.locator('header')).not.toContainText('Staff Security Engineer');
+  await expect(page.locator('.visual-signature')).not.toContainText('Staff Security Engineer');
   await expect(page.locator('main')).not.toContainText('Staff Security Engineer');
 
   await expect(page.locator('.skills b')).toHaveText(expectedCapabilities);
+  expect(await page.locator('.skills > div').evaluateAll((groups) => groups.map((group) =>
+    [...group.querySelectorAll('span')].map((line) => line.textContent.trim())
+  ))).toEqual(expectedCapabilityGroups);
 
   const experiences = page.locator('.experience');
   await expect(experiences).toHaveCount(expectedExperience.length);
@@ -154,23 +177,27 @@ test('renders current positioning, capabilities, and complete work history', asy
   await expect(experiences.last().locator('h5')).toHaveText('Application Security');
 });
 
-test('renders the expected social and contact destinations', async ({ page }) => {
+test('renders the expected contact destinations in the shared footer', async ({ page }) => {
   await loadPage(page);
 
+  await expect(page.locator('.visual-signature .contact-links')).toHaveCount(0);
+  const footer = page.locator('.site-footer');
   for (const [label, href] of expectedSocialLinks) {
-    await expect(page.getByRole('link', { name: label })).toHaveAttribute('href', href);
+    await expect(footer.getByRole('link', { name: label })).toHaveAttribute('href', href);
   }
 });
 
-test('social links have a readable keyboard focus indicator', async ({ page }) => {
+test('header and footer links have a sensible keyboard order and visible focus', async ({ page }) => {
   await loadPage(page);
 
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('link', { name: 'Home' })).toBeFocused();
+  await expect(page.getByRole('link', { name: 'Charlie Williams' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
 
-  const links = page.locator('.social-links a');
+  const links = page.locator('.contact-links a');
   for (let index = 0; index < await links.count(); index += 1) {
     await page.keyboard.press('Tab');
     await expect(links.nth(index)).toBeFocused();
@@ -193,10 +220,10 @@ test('social links have a readable keyboard focus indicator', async ({ page }) =
   }
 });
 
-test('social links retain readable text contrast on hover', async ({ page }) => {
+test('footer links retain readable text contrast on hover', async ({ page }) => {
   await loadPage(page);
 
-  const links = page.locator('.social-links a');
+  const links = page.locator('.contact-links a');
   for (let index = 0; index < await links.count(); index += 1) {
     const link = links.nth(index);
     await link.hover();
@@ -238,6 +265,30 @@ test('renders the nine vendored technology logos without a runtime icon dependen
   )).toHaveCount(0);
 });
 
+test('uses a compact homepage-only visual signature before About', async ({ page }) => {
+  await loadPage(page);
+
+  const signature = page.locator('.visual-signature');
+  await expect(signature).toBeVisible();
+  await expect(signature.locator('.slider-container')).toBeVisible();
+  await expect(signature.locator('.icon-list img')).toHaveCount(expectedTechnologies.length);
+  await expect(signature.locator('.social-links')).toHaveCount(0);
+
+  const positions = await page.locator('.visual-signature, #about').evaluateAll(([visualSignature, about]) => ({
+    signatureBottom: visualSignature.getBoundingClientRect().bottom,
+    aboutTop: about.getBoundingClientRect().top,
+    signatureHeight: visualSignature.getBoundingClientRect().height
+  }));
+  expect(positions.signatureBottom).toBeLessThanOrEqual(positions.aboutTop);
+  expect(positions.signatureHeight).toBeLessThanOrEqual(128);
+
+  const carouselFontSize = Number.parseFloat(await signature.locator('.vslide').first().evaluate(
+    (element) => getComputedStyle(element).fontSize
+  ));
+  expect(carouselFontSize).toBeGreaterThanOrEqual(23);
+  expect(carouselFontSize).toBeLessThanOrEqual(25);
+});
+
 test('uses the accent for capability and job-title scan points while experience context stays neutral', async ({ page }) => {
   await loadPage(page);
 
@@ -262,7 +313,7 @@ test('uses the accent for capability and job-title scan points while experience 
   await expect(page.locator('.work-experience h3').first()).toHaveCSS('color', white);
 });
 
-test('capability grid uses aligned headings without desktop wraps or viewport overflow', async ({ page }) => {
+test('capability grid uses a balanced 3 + 2 desktop layout with readable responsive fallbacks', async ({ page }) => {
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 1024, height: 768 },
@@ -276,50 +327,77 @@ test('capability grid uses aligned headings without desktop wraps or viewport ov
     expect(await page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(viewport.width);
 
-    if (viewport.width === 1440) {
-      const headings = await page.locator('.skills > div > span:first-child').evaluateAll((elements) =>
-        elements.map((heading) => {
-          const box = heading.getBoundingClientRect();
+    const layout = await page.locator('.skills').evaluate((grid) => {
+      const gridBox = grid.getBoundingClientRect();
+      return {
+        gridCenter: gridBox.left + (gridBox.width / 2),
+        groups: [...grid.children].map((group) => {
+          const box = group.getBoundingClientRect();
           return {
+            left: box.left,
+            right: box.right,
             top: box.top,
-            center: box.top + (box.height / 2),
-            height: box.height,
-            lineHeight: Number.parseFloat(getComputedStyle(heading).lineHeight)
+            textAlign: getComputedStyle(group).textAlign
           };
         })
-      );
+      };
+    });
+    expect(layout.groups.every(({ textAlign }) => textAlign === 'left')).toBe(true);
 
-      expect(headings.every(({ height, lineHeight }) => height <= lineHeight * 1.1)).toBe(true);
-      expect(Math.max(...headings.map(({ top }) => top)) - Math.min(...headings.map(({ top }) => top)))
-        .toBeLessThanOrEqual(1);
-      expect(Math.max(...headings.map(({ center }) => center)) - Math.min(...headings.map(({ center }) => center)))
-        .toBeLessThanOrEqual(1);
+    const rowCount = new Set(layout.groups.map(({ top }) => Math.round(top))).size;
+    if (viewport.width >= 1024) {
+      expect(rowCount).toBe(2);
+      expect(Math.max(...layout.groups.slice(0, 3).map(({ top }) => top))
+        - Math.min(...layout.groups.slice(0, 3).map(({ top }) => top))).toBeLessThanOrEqual(1);
+      expect(Math.abs(
+        ((layout.groups[3].left + layout.groups[4].right) / 2) - layout.gridCenter
+      )).toBeLessThanOrEqual(1);
+    } else if (viewport.width >= 768) {
+      expect(rowCount).toBe(3);
+      expect(Math.abs(
+        ((layout.groups[4].left + layout.groups[4].right) / 2) - layout.gridCenter
+      )).toBeLessThanOrEqual(1);
+    } else {
+      expect(rowCount).toBe(5);
     }
   }
 });
 
-test('summary prose is left-aligned only on narrow mobile viewports', async ({ page }) => {
+test('About prose and positioning line use a left-aligned readable measure', async ({ page }) => {
   for (const viewport of [
-    { width: 1440, height: 900, expectedAlignment: 'center' },
-    { width: 768, height: 1024, expectedAlignment: 'center' },
-    { width: 390, height: 844, expectedAlignment: 'left' },
-    { width: 320, height: 568, expectedAlignment: 'left' }
+    { width: 1440, height: 900 },
+    { width: 768, height: 1024 },
+    { width: 390, height: 844 },
+    { width: 320, height: 568 }
   ]) {
     await page.setViewportSize(viewport);
     await loadPage(page);
 
     const prose = page.locator('.summary > p:not(.supporting-positioning)');
     expect(await prose.evaluateAll(
-      (paragraphs, expectedAlignment) => paragraphs.every((paragraph) =>
-        getComputedStyle(paragraph).textAlign === expectedAlignment
-      ),
-      viewport.expectedAlignment
+      (paragraphs) => paragraphs.every((paragraph) =>
+        getComputedStyle(paragraph).textAlign === 'left'
+      )
     )).toBe(true);
-    await expect(page.locator('.summary h2')).toHaveCSS('text-align', 'center');
-    await expect(page.locator('.summary .supporting-positioning')).toHaveCSS('text-align', 'center');
+    await expect(page.locator('.summary .supporting-positioning')).toHaveCSS('text-align', 'left');
+    const measure = await prose.first().evaluate((element) => element.getBoundingClientRect().width);
+    expect(measure).toBeLessThanOrEqual(900);
     expect(await page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(viewport.width);
   }
+});
+
+test('Work Experience continues the editorial alignment without a slide-like gap', async ({ page }) => {
+  await loadPage(page);
+
+  const heading = page.getByRole('heading', { name: 'Work Experience' });
+  await expect(heading).toHaveCSS('text-align', 'start');
+  const spacing = await page.locator('.work-experience').evaluate((section) => {
+    const headingBox = section.querySelector('h2').getBoundingClientRect();
+    const firstRoleBox = section.querySelector('.experience-title').getBoundingClientRect();
+    return firstRoleBox.top - headingBox.bottom;
+  });
+  expect(spacing).toBeLessThanOrEqual(32);
 });
 
 test('publishes current metadata and structured data', async ({ page }) => {
@@ -477,6 +555,12 @@ for (const viewport of [
       lineHeight: Number.parseFloat(getComputedStyle(element).lineHeight)
     }));
     expect(supportingLine.height).toBeLessThanOrEqual(supportingLine.lineHeight * 1.1);
+
+    await expect(page.locator('.site-descriptor')).toHaveCount(0);
+    expect(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().height))
+      .toBeLessThanOrEqual(64);
+    expect(await page.locator('.visual-signature').evaluate((element) => element.getBoundingClientRect().height))
+      .toBeLessThanOrEqual(128);
   });
 
   test(`captures inspected ${viewport.name} top, summary, and work-experience screenshots`, async ({ page }) => {
@@ -484,21 +568,34 @@ for (const viewport of [
     await loadPage(page);
     await freezeCarouselAt(page, 3);
 
-    const headerBottom = await page.locator('header.title').evaluate((element) => {
+    const capabilitiesBottom = await page.locator('.summary').evaluate((element) => {
       const box = element.getBoundingClientRect();
       return box.bottom + window.scrollY;
     });
+    const overviewHeight = Math.ceil(capabilitiesBottom);
+    if (overviewHeight > viewport.height) {
+      await page.setViewportSize({ width: viewport.width, height: overviewHeight });
+    }
     await page.screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-top-agent-security.png`,
-      clip: { x: 0, y: 0, width: viewport.width, height: Math.ceil(headerBottom) }
+      path: `test-artifacts/screenshots/${viewport.name}-homepage-through-capabilities.png`,
+      clip: { x: 0, y: 0, width: viewport.width, height: overviewHeight }
     });
+    await page.setViewportSize(viewport);
 
     await page.locator('section.summary').screenshot({
       path: `test-artifacts/screenshots/${viewport.name}-summary-capabilities.png`
     });
 
-    await page.locator('.work-experience').screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-work-experience.png`
+    const workStart = page.locator('.work-experience');
+    await workStart.evaluate((element) => element.scrollIntoView({ block: 'start' }));
+    await page.screenshot({
+      path: `test-artifacts/screenshots/${viewport.name}-work-experience-start.png`,
+      clip: {
+        x: 0,
+        y: 0,
+        width: viewport.width,
+        height: viewport.height
+      }
     });
   });
 }

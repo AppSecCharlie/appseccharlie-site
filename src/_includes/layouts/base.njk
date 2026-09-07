@@ -38,12 +38,25 @@
 
 <body{% if bodyClass %} class="{{ bodyClass }}"{% endif %}>
     <div class="container{% if containerClass %} {{ containerClass }}{% endif %}">
-        <nav class="site-nav" aria-label="Primary">
-            <a href="/">Home</a>
-            <span aria-hidden="true">|</span>
-            <a href="/field-notes/">Field Notes</a>
-        </nav>
+        {% set fieldNotesActive = tags and ('fieldNotes' in tags) %}
+        <header class="site-header">
+            <a class="site-name" href="/">Charlie Williams</a>
+            <nav class="site-nav" aria-label="Primary">
+                <a class="site-link" href="/#about">About</a>
+                <a class="site-link{% if fieldNotesActive %} is-active{% endif %}" href="/field-notes/"{% if page.url == '/field-notes/' %} aria-current="page"{% endif %}>Field Notes</a>
+            </nav>
+        </header>
         {{ content | safe }}
+        <footer class="site-footer">
+            <nav aria-label="Contact">
+                <ul class="contact-links">
+                    <li><a href="mailto:this@appseccharlie.com" aria-label="Email">Email</a></li>
+                    <li><a href="https://linkedin.com/in/charlie-williams3" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                    <li><a href="https://github.com/appseccharlie" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                    <li><a href="https://x.com/AppSecCharlie" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">X</a></li>
+                </ul>
+            </nav>
+        </footer>
     </div>
 </body>
 

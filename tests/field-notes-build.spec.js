@@ -65,7 +65,16 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
       .toBeLessThan(indexHtml.indexOf('Earlier note'));
     expect(indexHtml).not.toContain('Newer draft');
     expect(noteHtml).toContain('<p>A lot of security automation starts with a task:');
-    expect(noteHtml).toContain('href="/field-notes/"');
+    expect(noteHtml).toContain('class="site-header"');
+    expect(noteHtml).toContain('class="site-name" href="/">Charlie Williams</a>');
+    expect(noteHtml).toContain('href="/#about">About</a>');
+    expect(noteHtml).toContain('class="site-link is-active" href="/field-notes/">Field Notes</a>');
+    expect(noteHtml).not.toContain('aria-current="page"');
+    expect(noteHtml).not.toContain('note-breadcrumb');
+    expect(noteHtml).toContain('>Back to Field Notes</a>');
+    expect(noteHtml).not.toContain('class="visual-signature"');
+    expect(noteHtml).toContain('class="site-footer"');
+    expect(noteHtml).toContain('class="contact-links"');
     expect(noteHtml).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/');
   } finally {
     await rm(root, { recursive: true, force: true });

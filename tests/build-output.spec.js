@@ -22,7 +22,10 @@ test('build emits the homepage and required static files', async () => {
   ));
 
   const homepage = await readFile(path.join(outputRoot, 'index.html'), 'utf8');
-  expect(homepage).toContain('<h1>Charlie Williams</h1>');
+  expect(homepage).not.toContain('<h1>Charlie Williams</h1>');
+  expect(homepage).not.toContain('id="about-heading"');
+  expect(homepage).toContain('class="visual-signature"');
+  expect(homepage).toContain('class="site-footer"');
   expect(homepage).toContain('Technical Security Leader');
   expect(homepage).toContain('application/ld+json');
 
