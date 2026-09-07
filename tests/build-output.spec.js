@@ -28,6 +28,14 @@ test('build emits the homepage and required static files', async () => {
   expect(homepage).toContain('class="site-footer"');
   expect(homepage).toContain('Technical Security Leader');
   expect(homepage).toContain('application/ld+json');
+  expect(homepage).toContain('<meta name="theme-color" content="#F4F1E8">');
+  expect(homepage).not.toContain('fonts.googleapis.com');
+  expect(homepage).not.toContain('fonts.gstatic.com');
+
+  const stylesheet = await readFile(path.join(outputRoot, 'css', 'styles.css'), 'utf8');
+  expect(stylesheet.toLowerCase()).not.toContain('#1ee97a');
+  expect(stylesheet).toContain('--paper: #F4F1E8');
+  expect(stylesheet).toContain('--ballpoint: #315F8D');
 
   await expect(access(path.join(outputRoot, 'assets/logos/SOURCE/index.html')))
     .rejects.toMatchObject({ code: 'ENOENT' });

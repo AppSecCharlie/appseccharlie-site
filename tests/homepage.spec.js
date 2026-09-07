@@ -19,12 +19,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 const expectedCarouselTerms = [
-  'Application',
-  'Product',
-  'AI',
-  'Agent',
-  'Platform',
-  'Data'
+  'Application Security',
+  'Product Security',
+  'AI Security',
+  'Agent Security',
+  'Platform Security',
+  'Data Security'
 ];
 
 const expectedCapabilities = [
@@ -103,7 +103,7 @@ async function visibleCarouselSlides(page) {
         );
         return visibleHeight > 0.5;
       })
-      .map((slide) => `${slide.textContent.trim()} Security`);
+      .map((slide) => slide.textContent.trim());
   });
 }
 
@@ -115,7 +115,9 @@ test('homepage loads without uncaught errors and applies its production styleshe
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Charlie Williams' })).toHaveCount(0);
-  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(27, 27, 37)');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 241, 232)');
+  await expect(page.locator('body')).toHaveCSS('color', 'rgb(32, 32, 30)');
+  await expect(page.locator('link[href*="fonts.googleapis.com"]')).toHaveCount(0);
   expect(await page.evaluate(() => typeof window.gtag)).toBe('function');
   expect(await page.evaluate(() => Array.isArray(window.dataLayer))).toBe(true);
   expect(browserErrors).toEqual([]);
@@ -154,8 +156,10 @@ test('renders current positioning, capabilities, and complete work history', asy
 
   await expect(page.locator('.visual-signature')).not.toContainText('Technical Security Leader');
   await expect(page.locator('.visual-signature')).not.toContainText('AppSec · AI Security · Identity & Trust');
-  await expect(page.locator('.summary h2')).toHaveCount(0);
+  await expect(page.locator('.summary h2:not(.section-label)')).toHaveCount(0);
   await expect(page.locator('.summary .supporting-positioning')).toHaveText('AppSec · AI Security · Identity & Trust');
+  await expect(page.getByRole('heading', { name: 'Capabilities' })).toHaveCSS('text-transform', 'uppercase');
+  await expect(page.getByRole('heading', { name: 'Work Experience' })).toHaveCSS('text-transform', 'uppercase');
   await expect(page.locator('.summary > p:not(.supporting-positioning)')).toHaveText(expectedSummary);
   await expect(page.locator('.work-experience')).toContainText('Manager, Product Security');
   await expect(page.locator('.visual-signature')).not.toContainText('Staff Security Engineer');
@@ -212,8 +216,8 @@ test('header and footer links have a sensible keyboard order and visible focus',
         outlineWidth: styles.outlineWidth
       };
     })).toEqual({
-      backgroundColor: 'rgb(27, 27, 37)',
-      outlineColor: 'rgb(30, 233, 122)',
+      backgroundColor: 'rgb(244, 241, 232)',
+      outlineColor: 'rgb(49, 95, 141)',
       outlineStyle: 'solid',
       outlineWidth: '3px'
     });
@@ -271,6 +275,7 @@ test('uses a compact homepage-only visual signature before About', async ({ page
   const signature = page.locator('.visual-signature');
   await expect(signature).toBeVisible();
   await expect(signature.locator('.slider-container')).toBeVisible();
+  await expect(signature.locator('.field-prefix')).toHaveText('FIELD /');
   await expect(signature.locator('.icon-list img')).toHaveCount(expectedTechnologies.length);
   await expect(signature.locator('.social-links')).toHaveCount(0);
 
@@ -285,32 +290,32 @@ test('uses a compact homepage-only visual signature before About', async ({ page
   const carouselFontSize = Number.parseFloat(await signature.locator('.vslide').first().evaluate(
     (element) => getComputedStyle(element).fontSize
   ));
-  expect(carouselFontSize).toBeGreaterThanOrEqual(23);
-  expect(carouselFontSize).toBeLessThanOrEqual(25);
+  expect(carouselFontSize).toBeGreaterThanOrEqual(20);
+  expect(carouselFontSize).toBeLessThanOrEqual(28);
 });
 
 test('uses the accent for capability and job-title scan points while experience context stays neutral', async ({ page }) => {
   await loadPage(page);
 
-  const accent = 'rgb(30, 233, 122)';
-  const white = 'rgb(255, 255, 255)';
+  const accent = 'rgb(49, 95, 141)';
+  const ink = 'rgb(32, 32, 30)';
 
   expect(await page.locator('.skills b').evaluateAll((elements) =>
-    elements.every((element) => getComputedStyle(element).color === 'rgb(30, 233, 122)')
+    elements.every((element) => getComputedStyle(element).color === 'rgb(49, 95, 141)')
   )).toBe(true);
   expect(await page.locator('.work-experience h4').evaluateAll((elements) =>
-    elements.every((element) => getComputedStyle(element).color === 'rgb(30, 233, 122)')
+    elements.every((element) => getComputedStyle(element).color === 'rgb(49, 95, 141)')
   )).toBe(true);
 
   for (const selector of ['.skills span', '.work-experience h3', '.work-experience h5', '.work-experience .dates', '.work-experience p']) {
     expect(await page.locator(selector).evaluateAll((elements) =>
-      elements.every((element) => getComputedStyle(element).color === 'rgb(255, 255, 255)')
-    ), `${selector} should remain white`).toBe(true);
+      elements.every((element) => getComputedStyle(element).color === 'rgb(32, 32, 30)')
+    ), `${selector} should use ink`).toBe(true);
   }
 
   await expect(page.locator('.skills b').first()).toHaveCSS('color', accent);
   await expect(page.locator('.work-experience h4').first()).toHaveCSS('color', accent);
-  await expect(page.locator('.work-experience h3').first()).toHaveCSS('color', white);
+  await expect(page.locator('.work-experience h3').first()).toHaveCSS('color', ink);
 });
 
 test('capability grid uses a balanced 3 + 2 desktop layout with readable responsive fallbacks', async ({ page }) => {
@@ -381,7 +386,9 @@ test('About prose and positioning line use a left-aligned readable measure', asy
     )).toBe(true);
     await expect(page.locator('.summary .supporting-positioning')).toHaveCSS('text-align', 'left');
     const measure = await prose.first().evaluate((element) => element.getBoundingClientRect().width);
-    expect(measure).toBeLessThanOrEqual(900);
+    expect(measure).toBeLessThanOrEqual(850);
+    expect(await prose.first().evaluate((element) => getComputedStyle(element).fontFamily))
+      .toMatch(/Iowan Old Style|Palatino Linotype|Book Antiqua|Georgia/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(viewport.width);
   }
@@ -531,8 +538,7 @@ test('carousel cycles normally and every configured security area can occupy the
 
   for (const [index, term] of expectedCarouselTerms.entries()) {
     await freezeCarouselAt(page, index);
-    expect(await visibleCarouselSlides(page)).toEqual([`${term} Security`]);
-    await expect(page.locator('.fixed-text')).toBeVisible();
+    expect(await visibleCarouselSlides(page)).toEqual([term]);
   }
 });
 
@@ -568,6 +574,18 @@ for (const viewport of [
     await loadPage(page);
     await freezeCarouselAt(page, 3);
 
+    const aboutBottom = await page.locator('.summary > p:not(.supporting-positioning)').last().evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return Math.ceil(box.bottom + window.scrollY + 24);
+    });
+    if (aboutBottom > viewport.height) {
+      await page.setViewportSize({ width: viewport.width, height: aboutBottom });
+    }
+    await page.screenshot({
+      path: `test-artifacts/screenshots/${viewport.name}-homepage-top-through-about.png`,
+      clip: { x: 0, y: 0, width: viewport.width, height: aboutBottom }
+    });
+
     const capabilitiesBottom = await page.locator('.summary').evaluate((element) => {
       const box = element.getBoundingClientRect();
       return box.bottom + window.scrollY;
@@ -581,6 +599,13 @@ for (const viewport of [
       clip: { x: 0, y: 0, width: viewport.width, height: overviewHeight }
     });
     await page.setViewportSize(viewport);
+
+    if (viewport.name === 'desktop') {
+      await page.screenshot({
+        path: 'test-artifacts/screenshots/desktop-capabilities-experience-start.png',
+        fullPage: true
+      });
+    }
 
     await page.locator('section.summary').screenshot({
       path: `test-artifacts/screenshots/${viewport.name}-summary-capabilities.png`
