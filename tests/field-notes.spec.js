@@ -31,7 +31,7 @@ test('navigates between Home and the production Field Notes index', async ({ pag
   await expectPrimaryNavigation(page);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveClass(/is-active/);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toHaveCount(1);
 
   await page.getByRole('link', { name: 'Charlie Williams' }).click();
   await expect(page).toHaveURL(/\/$/);
@@ -46,6 +46,8 @@ test('Field Notes header has a sensible keyboard order', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.locator('.contact-links').getByRole('link', { name: 'Email' })).toBeFocused();
 });
@@ -75,6 +77,37 @@ test('publishes Field Notes index metadata using the site URL pattern', async ({
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
 });
 
+test('Field Notes index and article use deterministic journal metadata and approved copy', async ({ page }) => {
+  await page.goto('/field-notes/');
+
+  const summary = page.locator('.note-summary').first();
+  await expect(summary.locator('.note-number')).toHaveText('FIELD NOTE 001');
+  await expect(summary.locator('time')).toHaveText('06 SEP 2026');
+  await summary.getByRole('link', { name: 'Turning Judgment into Infrastructure' }).click();
+
+  await expect(page).toHaveURL(/\/field-notes\/turning-judgment-into-infrastructure\/$/);
+  await expect(page.locator('.note-number')).toHaveText('FIELD NOTE 001');
+  await expect(page.locator('.field-note header time')).toHaveText('06 SEP 2026');
+  await expect(page.locator('.note-dek')).toHaveText('Encoding the repeatable parts of expert judgment into systems that can apply them consistently over time.');
+  await expect(page.locator('.note-body')).toContainText('A lot of repeated work starts at the task layer: answer this question, review this change, make this decision.');
+  await expect(page.locator('.note-body strong')).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'Back to Field Notes' })).toHaveAttribute('href', '/field-notes/');
+  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).toHaveClass(/is-active/);
+  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).not.toHaveAttribute('aria-current', 'page');
+});
+
+test('Field Notes use the paper palette, editorial measure, and sans/serif/mono type roles', async ({ page }) => {
+  await page.goto('/field-notes/turning-judgment-into-infrastructure/');
+
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 241, 232)');
+  expect(await page.locator('.field-note h1').evaluate((element) => getComputedStyle(element).fontFamily))
+    .toMatch(/Iowan Old Style|Palatino Linotype|Book Antiqua|Georgia/);
+  expect(await page.locator('.note-meta').evaluate((element) => getComputedStyle(element).fontFamily))
+    .toMatch(/ui-monospace|SFMono-Regular|Cascadia Code|Consolas/);
+  const articleWidth = await page.locator('.note-body').evaluate((element) => element.getBoundingClientRect().width);
+  expect(articleWidth).toBeLessThanOrEqual(720);
+});
+
 for (const viewport of [
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'mobile', width: 390, height: 844 }
@@ -98,6 +131,15 @@ for (const viewport of [
       .toBeLessThanOrEqual(64);
     await page.screenshot({
       path: `test-artifacts/screenshots/field-notes-index-${viewport.name}.png`,
+      fullPage: true
+    });
+
+    const articleResponse = await page.goto('/field-notes/turning-judgment-into-infrastructure/');
+    expect(articleResponse?.ok()).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(viewport.width);
+    await page.screenshot({
+      path: `test-artifacts/screenshots/field-note-001-${viewport.name}.png`,
       fullPage: true
     });
 

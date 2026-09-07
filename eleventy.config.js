@@ -29,6 +29,14 @@ module.exports = function (eleventyConfig) {
     timeZone: 'UTC'
   }).format(date));
   eleventyConfig.addFilter('htmlDateString', (date) => date.toISOString().slice(0, 10));
+  eleventyConfig.addFilter('journalDate', (date) => {
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    return `${String(date.getUTCDate()).padStart(2, '0')} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+  });
+  eleventyConfig.addFilter('fieldNoteNumber', (collection, pageUrl) => {
+    const index = collection.findIndex((note) => note.page.url === pageUrl);
+    return String(index + 1).padStart(3, '0');
+  });
 
   return {
     dir: {

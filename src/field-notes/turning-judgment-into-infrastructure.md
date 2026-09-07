@@ -2,11 +2,13 @@
 title: Turning Judgment into Infrastructure
 date: 2026-09-06
 description: Encoding the repeatable parts of expert judgment into systems that can apply them consistently over time.
-draft: true
+draft: false
 ---
 
-A lot of security automation starts with a task: run this scanner, open this ticket, send this alert. I’m more interested in the judgment that determines what should happen next. When experienced people keep making the same kind of decision, some part of that reasoning may be stable enough to encode.
+A lot of repeated work starts at the task layer: answer this question, review this change, make this decision. After enough repetitions, it is worth asking whether some part of the judgment behind that work has become stable.
 
-The form varies. It might become a workflow, a Terraform module, a dashboard that puts the right evidence in front of someone, an agent that proposes a code change, or a bot that can apply a security team’s accumulated judgment to a new question. Sometimes it’s a system that checks its own output over time, so a change can prove that it still preserves the behavior it was meant to replace.
+Once the judgment is stable enough, it can move out of someone’s head and into the system. A Terraform module can encode a good infrastructure pattern. A bot can apply a security team’s accumulated decisions to recurring questions. An agent can recognize a familiar code issue and propose or make the fix.
 
-The goal isn’t to automate every decision. It’s to move the repeatable parts somewhere more durable, along with enough evidence to know the mechanism is still doing what we intended, and leave people with the cases that are actually new.
+The trick is not to encode more than you actually know. **Encode the invariants, preserve the exceptions, and instrument the mechanism so reality can tell you when the model is wrong.** Let it run. Watch where people override it, where edge cases accumulate, and where the assumptions stop holding. Those exceptions are feedback about what should be encoded next, or what should stay human.
+
+**That’s when judgment becomes infrastructure: the routine cases stop consuming human attention, and the exceptions become feedback for the next version of the system.**

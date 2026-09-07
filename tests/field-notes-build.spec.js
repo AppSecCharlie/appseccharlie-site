@@ -9,17 +9,19 @@ const execFileAsync = promisify(execFile);
 const projectRoot = path.resolve('.');
 const eleventyBinary = path.join(projectRoot, 'node_modules', '.bin', 'eleventy');
 
-test('production output excludes draft notes from the collection and filesystem', async () => {
+test('production output publishes the approved first Field Note at its clean URL', async () => {
   const indexHtml = await readFile(path.join(projectRoot, '_site', 'field-notes', 'index.html'), 'utf8');
 
-  expect(indexHtml).not.toContain('Turning Judgment into Infrastructure');
+  expect(indexHtml).toContain('FIELD NOTE 001');
+  expect(indexHtml).toContain('06 SEP 2026');
+  expect(indexHtml).toContain('Turning Judgment into Infrastructure');
   await expect(access(path.join(
     projectRoot,
     '_site',
     'field-notes',
     'turning-judgment-into-infrastructure',
     'index.html'
-  ))).rejects.toMatchObject({ code: 'ENOENT' });
+  ))).resolves.toBeUndefined();
 });
 
 test('published notes render Markdown at clean URLs in newest-first order', async () => {
@@ -64,7 +66,13 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
     expect(indexHtml.indexOf('Turning Judgment into Infrastructure'))
       .toBeLessThan(indexHtml.indexOf('Earlier note'));
     expect(indexHtml).not.toContain('Newer draft');
-    expect(noteHtml).toContain('<p>A lot of security automation starts with a task:');
+    expect(indexHtml).toContain('FIELD NOTE 002');
+    expect(indexHtml).toContain('FIELD NOTE 001');
+    expect(noteHtml).toContain('FIELD NOTE 002');
+    expect(noteHtml).toContain('06 SEP 2026');
+    expect(noteHtml).toContain('<p class="note-dek">Encoding the repeatable parts of expert judgment into systems that can apply them consistently over time.</p>');
+    expect(noteHtml).toContain('<p>A lot of repeated work starts at the task layer:');
+    expect(noteHtml).toContain('<strong>Encode the invariants, preserve the exceptions, and instrument the mechanism so reality can tell you when the model is wrong.</strong>');
     expect(noteHtml).toContain('class="site-header"');
     expect(noteHtml).toContain('class="site-name" href="/">Charlie Williams</a>');
     expect(noteHtml).toContain('href="/#about">About</a>');
