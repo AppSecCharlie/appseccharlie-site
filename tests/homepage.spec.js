@@ -264,6 +264,8 @@ test('capability grid uses a balanced 3 + 2 desktop layout with readable respons
     const layout = await page.locator('.skills').evaluate((grid) => {
       const gridBox = grid.getBoundingClientRect();
       return {
+        gridLeft: gridBox.left,
+        gridRight: gridBox.right,
         gridCenter: gridBox.left + (gridBox.width / 2),
         groups: [...grid.children].map((group) => {
           const box = group.getBoundingClientRect();
@@ -298,8 +300,37 @@ test('capability grid uses a balanced 3 + 2 desktop layout with readable respons
         - Math.min(...layout.groups.map(({ left }) => left))).toBeLessThanOrEqual(1);
       expect(Math.max(...layout.groups.map(({ width }) => width))
         - Math.min(...layout.groups.map(({ width }) => width))).toBeLessThanOrEqual(1);
+      expect(layout.groups.every(({ left, right }) => (
+        Math.abs(left - layout.gridLeft) <= 1 && Math.abs(right - layout.gridRight) <= 1
+      ))).toBe(true);
     }
   }
+});
+
+test('FIELD markers use consistent content spacing and Profile flows into Capabilities', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loadPage(page);
+
+  const spacing = await page.evaluate(() => {
+    const profileParagraph = document.querySelector('.summary > p:not(.supporting-positioning):not(.section-label):last-child');
+    const capabilitiesLabel = document.querySelector('.capabilities > .section-label');
+    const firstCapability = document.querySelector('.skills > div');
+    const experienceLabel = document.querySelector('.work-experience > .section-label');
+    const firstExperience = document.querySelector('.work-experience > .experience');
+    const firstExperienceTitle = firstExperience.querySelector('.experience-title');
+
+    return {
+      profileToCapabilities: capabilitiesLabel.getBoundingClientRect().top - profileParagraph.getBoundingClientRect().bottom,
+      capabilitiesLabelToRule: firstCapability.getBoundingClientRect().top - capabilitiesLabel.getBoundingClientRect().bottom,
+      experienceLabelToContent: firstExperienceTitle.getBoundingClientRect().top - experienceLabel.getBoundingClientRect().bottom,
+      firstExperienceBorderWidth: getComputedStyle(firstExperience).borderBlockStartWidth
+    };
+  });
+
+  expect.soft(spacing.profileToCapabilities).toBeGreaterThanOrEqual(36);
+  expect.soft(spacing.profileToCapabilities).toBeLessThanOrEqual(40);
+  expect.soft(Math.abs(spacing.capabilitiesLabelToRule - spacing.experienceLabelToContent)).toBeLessThanOrEqual(1);
+  expect(spacing.firstExperienceBorderWidth).toBe('0px');
 });
 
 test('About prose and positioning line use a left-aligned readable measure', async ({ page }) => {

@@ -213,6 +213,10 @@ main {
   margin-block-end: var(--space-4);
 }
 
+.capabilities > .section-label {
+  margin-block-start: calc(var(--space-7) - 0.625rem);
+}
+
 .skills {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -261,6 +265,10 @@ main {
 .experience {
   border-block-start: 1px solid var(--rule);
   padding-block: var(--space-5) var(--space-4);
+}
+
+.work-experience > .experience:first-of-type {
+  border-block-start: 0;
 }
 
 .experience-title {
@@ -480,8 +488,9 @@ main {
   .skills > div:nth-child(4),
   .skills > div:nth-child(5) {
     grid-column: auto;
-    inline-size: auto;
+    inline-size: 100%;
     justify-self: stretch;
+    margin-inline: 0;
   }
 
   .experience-title {
