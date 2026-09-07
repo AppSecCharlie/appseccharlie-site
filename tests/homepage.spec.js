@@ -18,15 +18,6 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-const expectedCarouselTerms = [
-  'Application Security',
-  'Product Security',
-  'AI Security',
-  'Agent Security',
-  'Platform Security',
-  'Data Security'
-];
-
 const expectedCapabilities = [
   'Product & Application Security',
   'AI & Agent Security',
@@ -58,18 +49,6 @@ const expectedSocialLinks = [
   ['X (Twitter)', 'https://x.com/AppSecCharlie']
 ];
 
-const expectedTechnologies = [
-  ['GitHub', '/assets/logos/github-icon.svg'],
-  ['GitHub Actions', '/assets/logos/github-actions.svg'],
-  ['Claude', '/assets/logos/claude-icon.svg'],
-  ['GitHub Copilot', '/assets/logos/github-copilot.svg'],
-  ['Python', '/assets/logos/python.svg'],
-  ['AWS', '/assets/logos/aws.svg'],
-  ['Terraform', '/assets/logos/terraform-icon.svg'],
-  ['Snowflake', '/assets/logos/snowflake-icon.svg'],
-  ['dbt', '/assets/logos/dbt-icon.svg']
-];
-
 const expectedSummary = [
   'I lead Product Security at Upside, with a background in Application Security and security engineering. I stay hands-on in architecture and engineering while managing the team, with current work spanning AppSec, authentication and account trust, AI security and enablement, and the data and automation behind those programs.',
   'My work often starts with ambiguity: understanding the problem, gathering enough evidence to make a decision, and turning that into systems, controls, and workflows that hold up in practice. A recurring theme is the trust boundary: what people, services, or agents are allowed to do, and under what conditions. Those boundaries increasingly cut across traditional security domains and org charts.'
@@ -79,32 +58,6 @@ async function loadPage(page) {
   const response = await page.goto('/');
   expect(response?.ok()).toBe(true);
   await page.evaluate(() => document.fonts.ready);
-}
-
-async function freezeCarouselAt(page, index) {
-  await page.locator('.vmove').evaluate((element, selectedIndex) => {
-    const slideHeight = document.querySelector('.vwrap').getBoundingClientRect().height;
-    element.style.animation = 'none';
-    element.style.transform = `translateY(-${selectedIndex * slideHeight}px)`;
-  }, index);
-}
-
-async function visibleCarouselSlides(page) {
-  return page.locator('.slider-container').evaluate((container) => {
-    const wrapper = container.querySelector('.vwrap');
-    const wrapperBox = wrapper.getBoundingClientRect();
-
-    return [...container.querySelectorAll('.vslide')]
-      .filter((slide) => {
-        const box = slide.getBoundingClientRect();
-        const visibleHeight = Math.max(
-          0,
-          Math.min(box.bottom, wrapperBox.bottom) - Math.max(box.top, wrapperBox.top)
-        );
-        return visibleHeight > 0.5;
-      })
-      .map((slide) => slide.textContent.trim());
-  });
 }
 
 test('homepage loads without uncaught errors and applies its production stylesheet', async ({ page }) => {
@@ -154,15 +107,18 @@ test('blocks production Google Analytics traffic during browser tests', async ({
 test('renders current positioning, capabilities, and complete work history', async ({ page }) => {
   await loadPage(page);
 
-  await expect(page.locator('.visual-signature')).not.toContainText('Technical Security Leader');
-  await expect(page.locator('.visual-signature')).not.toContainText('AppSec · AI Security · Identity & Trust');
+  await expect(page.locator('.section-label')).toHaveText([
+    'FIELD 01 / PROFILE',
+    'FIELD 02 / CAPABILITIES',
+    'FIELD 03 / EXPERIENCE'
+  ]);
+  await expect(page.locator('.visual-signature, .slider-container, .icon-list, .vslide')).toHaveCount(0);
   await expect(page.locator('.summary h2:not(.section-label)')).toHaveCount(0);
   await expect(page.locator('.summary .supporting-positioning')).toHaveText('AppSec · AI Security · Identity & Trust');
-  await expect(page.getByRole('heading', { name: 'Capabilities' })).toHaveCSS('text-transform', 'uppercase');
+  await expect(page.getByRole('heading', { name: 'FIELD 02 / CAPABILITIES' })).toHaveCSS('text-transform', 'uppercase');
   await expect(page.getByRole('heading', { name: 'Work Experience' })).toHaveCSS('text-transform', 'uppercase');
-  await expect(page.locator('.summary > p:not(.supporting-positioning)')).toHaveText(expectedSummary);
+  await expect(page.locator('.summary > p:not(.supporting-positioning):not(.section-label)')).toHaveText(expectedSummary);
   await expect(page.locator('.work-experience')).toContainText('Manager, Product Security');
-  await expect(page.locator('.visual-signature')).not.toContainText('Staff Security Engineer');
   await expect(page.locator('main')).not.toContainText('Staff Security Engineer');
 
   await expect(page.locator('.skills b')).toHaveText(expectedCapabilities);
@@ -184,7 +140,6 @@ test('renders current positioning, capabilities, and complete work history', asy
 test('renders the expected contact destinations in the shared footer', async ({ page }) => {
   await loadPage(page);
 
-  await expect(page.locator('.visual-signature .contact-links')).toHaveCount(0);
   const footer = page.locator('.site-footer');
   for (const [label, href] of expectedSocialLinks) {
     await expect(footer.getByRole('link', { name: label })).toHaveAttribute('href', href);
@@ -253,45 +208,19 @@ test('footer links retain readable text contrast on hover', async ({ page }) => 
   }
 });
 
-test('renders the nine vendored technology logos without a runtime icon dependency', async ({ page }) => {
+test('uses numbered field metadata instead of the former animated signature', async ({ page }) => {
   await loadPage(page);
 
-  const icons = page.locator('.icon-list img');
-  await expect(icons).toHaveCount(expectedTechnologies.length);
-  expect(await icons.evaluateAll((elements) => elements.map((icon) => [
-    icon.alt,
-    icon.title,
-    new URL(icon.src).pathname
-  ]))).toEqual(expectedTechnologies.map(([name, src]) => [name, name, src]));
-  expect(await icons.evaluateAll((elements) => elements.every((icon) => icon.complete && icon.naturalWidth > 0))).toBe(true);
-  await expect(page.locator(
-    'link[href*="devicon"], link[href*="font-awesome"], [class*="devicon-"], [class*="fa-"]'
-  )).toHaveCount(0);
-});
-
-test('uses a compact homepage-only visual signature before About', async ({ page }) => {
-  await loadPage(page);
-
-  const signature = page.locator('.visual-signature');
-  await expect(signature).toBeVisible();
-  await expect(signature.locator('.slider-container')).toBeVisible();
-  await expect(signature.locator('.field-prefix')).toHaveText('FIELD /');
-  await expect(signature.locator('.icon-list img')).toHaveCount(expectedTechnologies.length);
-  await expect(signature.locator('.social-links')).toHaveCount(0);
-
-  const positions = await page.locator('.visual-signature, #about').evaluateAll(([visualSignature, about]) => ({
-    signatureBottom: visualSignature.getBoundingClientRect().bottom,
-    aboutTop: about.getBoundingClientRect().top,
-    signatureHeight: visualSignature.getBoundingClientRect().height
-  }));
-  expect(positions.signatureBottom).toBeLessThanOrEqual(positions.aboutTop);
-  expect(positions.signatureHeight).toBeLessThanOrEqual(128);
-
-  const carouselFontSize = Number.parseFloat(await signature.locator('.vslide').first().evaluate(
-    (element) => getComputedStyle(element).fontSize
-  ));
-  expect(carouselFontSize).toBeGreaterThanOrEqual(20);
-  expect(carouselFontSize).toBeLessThanOrEqual(28);
+  await expect(page.locator('.visual-signature, .slider-container, .carousel-accessible-label, .icon-list')).toHaveCount(0);
+  const labels = page.locator('.section-label');
+  await expect(labels).toHaveCount(3);
+  expect(await labels.evaluateAll((elements) => elements.every((element) => {
+    const styles = getComputedStyle(element);
+    return styles.textAlign === 'start'
+      && styles.textTransform === 'uppercase'
+      && styles.color === 'rgb(102, 100, 95)'
+      && /ui-monospace|SFMono-Regular|Cascadia Code|Consolas/.test(styles.fontFamily);
+  }))).toBe(true);
 });
 
 test('uses the accent for capability and job-title scan points while experience context stays neutral', async ({ page }) => {
@@ -341,6 +270,7 @@ test('capability grid uses a balanced 3 + 2 desktop layout with readable respons
           return {
             left: box.left,
             right: box.right,
+            width: box.width,
             top: box.top,
             textAlign: getComputedStyle(group).textAlign
           };
@@ -364,6 +294,10 @@ test('capability grid uses a balanced 3 + 2 desktop layout with readable respons
       )).toBeLessThanOrEqual(1);
     } else {
       expect(rowCount).toBe(5);
+      expect(Math.max(...layout.groups.map(({ left }) => left))
+        - Math.min(...layout.groups.map(({ left }) => left))).toBeLessThanOrEqual(1);
+      expect(Math.max(...layout.groups.map(({ width }) => width))
+        - Math.min(...layout.groups.map(({ width }) => width))).toBeLessThanOrEqual(1);
     }
   }
 });
@@ -378,7 +312,7 @@ test('About prose and positioning line use a left-aligned readable measure', asy
     await page.setViewportSize(viewport);
     await loadPage(page);
 
-    const prose = page.locator('.summary > p:not(.supporting-positioning)');
+    const prose = page.locator('.summary > p:not(.supporting-positioning):not(.section-label)');
     expect(await prose.evaluateAll(
       (paragraphs) => paragraphs.every((paragraph) =>
         getComputedStyle(paragraph).textAlign === 'left'
@@ -389,6 +323,11 @@ test('About prose and positioning line use a left-aligned readable measure', asy
     expect(measure).toBeLessThanOrEqual(850);
     expect(await prose.first().evaluate((element) => getComputedStyle(element).fontFamily))
       .toMatch(/Iowan Old Style|Palatino Linotype|Book Antiqua|Georgia/);
+    const fontSize = Number.parseFloat(await prose.first().evaluate((element) => getComputedStyle(element).fontSize));
+    if (viewport.width <= 390) {
+      expect(fontSize).toBeGreaterThanOrEqual(16);
+      expect(fontSize).toBeLessThanOrEqual(16.4);
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(viewport.width);
   }
@@ -474,74 +413,6 @@ test('publishes current metadata and structured data', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText('—');
 });
 
-test('carousel is accessible without an auto-updating live region', async ({ page }) => {
-  await loadPage(page);
-
-  await expect(page.locator('.carousel-accessible-label')).toHaveText(
-    'Application Security, Product Security, AI Security, Agent Security, Platform Security, Data Security'
-  );
-  await expect(page.locator('.carousel-accessible-label')).toHaveClass(/visually-hidden/);
-  await expect(page.locator('.slider-container')).toHaveAttribute('aria-hidden', 'true');
-  await expect(page.locator('.slider-container')).not.toHaveAttribute('aria-live', /.+/);
-});
-
-test('carousel moves smoothly between terms on desktop and mobile', async ({ page }) => {
-  for (const viewport of [
-    { width: 1440, height: 900 },
-    { width: 390, height: 844 }
-  ]) {
-    await page.setViewportSize(viewport);
-    await loadPage(page);
-
-    const motion = await page.locator('.vmove').evaluate((element) => {
-      const animation = element.getAnimations()[0];
-      animation.pause();
-      animation.currentTime = 1000;
-
-      return {
-        offset: Math.abs(new DOMMatrixReadOnly(getComputedStyle(element).transform).m42),
-        slideHeight: document.querySelector('.vwrap').getBoundingClientRect().height
-      };
-    });
-
-    expect(motion.offset).toBeGreaterThan(1);
-    expect(motion.offset).toBeLessThan(motion.slideHeight - 1);
-  }
-});
-
-test('reduced-motion mode freezes the first carousel term without clipping', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await loadPage(page);
-
-  await expect(page.locator('.vmove')).toHaveCSS('animation-name', 'none');
-  expect(await visibleCarouselSlides(page)).toEqual(['Application Security']);
-
-  const initialTransform = await page.locator('.vmove').evaluate((element) => getComputedStyle(element).transform);
-  await page.waitForTimeout(500);
-  await expect(page.locator('.vmove')).toHaveCSS('transform', initialTransform);
-});
-
-test('carousel cycles normally and every configured security area can occupy the visible slot', async ({ page }) => {
-  await loadPage(page);
-
-  await expect(page.locator('.vslide')).toHaveText(expectedCarouselTerms);
-  const initialTransform = await page.locator('.vmove').evaluate((element) => getComputedStyle(element).transform);
-  await expect.poll(
-    () => page.locator('.vmove').evaluate((element) => getComputedStyle(element).transform),
-    { timeout: 3500 }
-  ).not.toBe(initialTransform);
-  const nextTransform = await page.locator('.vmove').evaluate((element) => getComputedStyle(element).transform);
-  await expect.poll(
-    () => page.locator('.vmove').evaluate((element) => getComputedStyle(element).transform),
-    { timeout: 3500 }
-  ).not.toBe(nextTransform);
-
-  for (const [index, term] of expectedCarouselTerms.entries()) {
-    await freezeCarouselAt(page, index);
-    expect(await visibleCarouselSlides(page)).toEqual([term]);
-  }
-});
-
 for (const viewport of [
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'mobile', width: 390, height: 844 }
@@ -565,16 +436,13 @@ for (const viewport of [
     await expect(page.locator('.site-descriptor')).toHaveCount(0);
     expect(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().height))
       .toBeLessThanOrEqual(64);
-    expect(await page.locator('.visual-signature').evaluate((element) => element.getBoundingClientRect().height))
-      .toBeLessThanOrEqual(128);
+    await expect(page.locator('.visual-signature, .slider-container, .icon-list')).toHaveCount(0);
   });
 
   test(`captures inspected ${viewport.name} top, summary, and work-experience screenshots`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await loadPage(page);
-    await freezeCarouselAt(page, 3);
-
-    const aboutBottom = await page.locator('.summary > p:not(.supporting-positioning)').last().evaluate((element) => {
+    const aboutBottom = await page.locator('.summary > p:not(.supporting-positioning):not(.section-label)').last().evaluate((element) => {
       const box = element.getBoundingClientRect();
       return Math.ceil(box.bottom + window.scrollY + 24);
     });
@@ -586,41 +454,27 @@ for (const viewport of [
       clip: { x: 0, y: 0, width: viewport.width, height: aboutBottom }
     });
 
-    const capabilitiesBottom = await page.locator('.summary').evaluate((element) => {
-      const box = element.getBoundingClientRect();
-      return box.bottom + window.scrollY;
+    await page.locator('section.capabilities').screenshot({
+      path: `test-artifacts/screenshots/${viewport.name}-homepage-capabilities.png`
     });
-    const overviewHeight = Math.ceil(capabilitiesBottom);
-    if (overviewHeight > viewport.height) {
-      await page.setViewportSize({ width: viewport.width, height: overviewHeight });
-    }
-    await page.screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-homepage-through-capabilities.png`,
-      clip: { x: 0, y: 0, width: viewport.width, height: overviewHeight }
+
+    await page.locator('.work-experience').screenshot({
+      path: `test-artifacts/screenshots/${viewport.name}-homepage-experience.png`
     });
-    await page.setViewportSize(viewport);
 
     if (viewport.name === 'desktop') {
+      await page.locator('.capabilities').evaluate((element) => {
+        document.documentElement.style.scrollBehavior = 'auto';
+        element.scrollIntoView({ block: 'start' });
+      });
       await page.screenshot({
-        path: 'test-artifacts/screenshots/desktop-capabilities-experience-start.png',
+        path: 'test-artifacts/screenshots/desktop-homepage-capabilities-into-experience.png',
+        clip: { x: 0, y: 0, width: viewport.width, height: viewport.height }
+      });
+      await page.screenshot({
+        path: 'test-artifacts/screenshots/desktop-homepage-full.png',
         fullPage: true
       });
     }
-
-    await page.locator('section.summary').screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-summary-capabilities.png`
-    });
-
-    const workStart = page.locator('.work-experience');
-    await workStart.evaluate((element) => element.scrollIntoView({ block: 'start' }));
-    await page.screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-work-experience-start.png`,
-      clip: {
-        x: 0,
-        y: 0,
-        width: viewport.width,
-        height: viewport.height
-      }
-    });
   });
 }

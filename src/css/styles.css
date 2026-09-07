@@ -9,7 +9,6 @@
   --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Consolas, monospace;
   --measure-wide: 50rem;
   --measure-article: 44rem;
-  --icon-size: 1.55rem;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -161,31 +160,6 @@ hr {
   text-decoration-color: currentColor;
 }
 
-.visually-hidden {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.visual-signature {
-  max-inline-size: var(--measure-wide);
-  margin-block-end: var(--space-7);
-}
-
-.slider-container {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  inline-size: min(100%, 29rem);
-}
-
-.field-prefix,
 .section-label,
 .note-meta {
   font-family: var(--font-mono);
@@ -196,97 +170,12 @@ hr {
   text-transform: uppercase;
 }
 
-.field-prefix {
-  flex: none;
-  color: var(--graphite);
-  white-space: nowrap;
-}
-
-.vwrap,
-.vslide {
-  block-size: 2rem;
-}
-
-.vwrap {
-  position: relative;
-  flex: 1;
-  min-inline-size: 0;
-  overflow: hidden;
-}
-
-.vmove {
-  position: absolute;
-  inset: 0 0 auto;
-  inline-size: 100%;
-  animation: slidev 12s infinite;
-}
-
-.vslide {
-  display: flex;
-  align-items: center;
-  color: var(--ballpoint);
-  font-size: clamp(1.3rem, 2vw, 1.55rem);
-  font-weight: 620;
-  letter-spacing: -0.025em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-@keyframes slidev {
-  0% { transform: translateY(0); }
-  16.667% { transform: translateY(-2rem); }
-  33.333% { transform: translateY(-4rem); }
-  50% { transform: translateY(-6rem); }
-  66.667% { transform: translateY(-8rem); }
-  83.333% { transform: translateY(-10rem); }
-  100% { transform: translateY(0); }
-}
-
-.icon-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
-  padding: 0;
-  margin: var(--space-3) 0 0;
-  list-style: none;
-}
-
-.icon-list li {
-  display: grid;
-  place-items: center;
-  flex: 0 0 var(--icon-size);
-  block-size: var(--icon-size);
-}
-
-.tech-icon {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: contain;
-  filter: grayscale(1) contrast(0.55) brightness(0.7);
-  transform: scale(0.9);
-  transform-origin: center;
-}
-
-.tech-icon--claude,
-.tech-icon--dbt {
-  transform: scale(0.84);
-}
-
-.tech-icon--github-copilot,
-.tech-icon--aws {
-  transform: scale(1.04);
-}
-
-.tech-icon--terraform {
-  transform: scale(0.88);
-}
-
 main {
   min-inline-size: 0;
 }
 
 .summary,
+.capabilities,
 .work-experience {
   max-inline-size: var(--measure-wide);
 }
@@ -305,7 +194,7 @@ main {
   white-space: nowrap;
 }
 
-.summary > p:not(.supporting-positioning) {
+.summary > p:not(.supporting-positioning):not(.section-label) {
   max-inline-size: var(--measure-wide);
   margin: 0 0 var(--space-5);
   font-family: var(--font-serif);
@@ -317,6 +206,11 @@ main {
 .section-label {
   margin: var(--space-7) 0 var(--space-5);
   color: var(--graphite);
+}
+
+.summary > .section-label {
+  margin-block-start: 0;
+  margin-block-end: var(--space-4);
 }
 
 .skills {
@@ -587,6 +481,7 @@ main {
   .skills > div:nth-child(5) {
     grid-column: auto;
     inline-size: auto;
+    justify-self: stretch;
   }
 
   .experience-title {
@@ -614,24 +509,12 @@ main {
     gap: var(--space-4);
   }
 
-  .visual-signature {
-    margin-block-end: var(--space-6);
-  }
-
-  .slider-container {
-    gap: var(--space-2);
-  }
-
-  .field-prefix {
-    font-size: 0.66rem;
-  }
-
-  .vslide {
-    font-size: 1.3rem;
-  }
-
   .summary .supporting-positioning {
     font-size: 0.88rem;
+  }
+
+  .summary > p:not(.supporting-positioning):not(.section-label) {
+    font-size: 1.02rem;
   }
 
   .note-meta {
@@ -655,25 +538,10 @@ main {
   .summary .supporting-positioning {
     white-space: normal;
   }
-
-  .slider-container {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .vwrap {
-    inline-size: 100%;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  .vmove {
-    animation: none;
-    transform: translateY(0);
   }
 }
