@@ -1,0 +1,29 @@
+{
+  "name": "Charlie Williams",
+  "url": "https://appseccharlie.com",
+  "description": "Technical security leader with a Staff-level security engineering background across Product Security, AppSec, AI and agent security, identity, trust, and security platforms.",
+  "contactRoutes": [
+    {
+      "label": "Email",
+      "href": "mailto:this@appseccharlie.com",
+      "ariaLabel": "Email",
+      "external": false
+    },
+    {
+      "label": "LinkedIn",
+      "href": "https://linkedin.com/in/charlie-williams3",
+      "external": true
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/appseccharlie",
+      "external": true
+    },
+    {
+      "label": "X",
+      "href": "https://x.com/AppSecCharlie",
+      "ariaLabel": "X (Twitter)",
+      "external": true
+    }
+  ]
+}

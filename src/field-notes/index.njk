@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+metaTitle: Field Notes | Charlie Williams
+description: Short notes from work on security, software, trust, and AI.
+canonicalUrl: https://appseccharlie.com/field-notes/
+containerClass: notes-container
+ogType: website
+permalink: /field-notes/index.html
+eleventyExcludeFromCollections: true
+---
+<main class="field-notes-index">
+    <h1 class="journal-heading">Field Notes</h1>
+    <p class="notes-intro">Short notes from work on security, software, trust, and AI.</p>
+
+    <div class="note-list">
+    {% for note in collections.fieldNotes | reverse %}
+    <article class="note-summary">
+        <div class="note-meta">
+            <span class="note-number">FIELD NOTE {{ collections.fieldNotes | fieldNoteNumber(note.page.url) }}</span>
+            <time datetime="{{ note.page.date | htmlDateString }}">{{ note.page.date | journalDate }}</time>
+        </div>
+        <h2><a href="{{ note.page.url }}">{{ note.data.title }}</a></h2>
+        <p>{{ note.data.description }}</p>
+    </article>
+    {% endfor %}
+    </div>
+</main>

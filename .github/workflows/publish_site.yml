@@ -34,8 +34,18 @@ jobs:
       - name: Install Playwright Chromium
         run: npx --no-install playwright install --with-deps chromium
 
+      - name: Build site
+        run: npm run build
+
       - name: Run Playwright tests
         run: npm test
+
+      - name: Upload tested site to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ./_site
+          include-hidden-files: true
 
       - name: Upload Playwright failure artifacts
         if: failure()
@@ -61,16 +71,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Upload public/ to GitHub Pages
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: ./public
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

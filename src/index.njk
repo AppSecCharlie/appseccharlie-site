@@ -1,118 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Charlie Williams | Technical Security Leader</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta name="description"
-        content="Technical security leader with a Staff-level security engineering background across Product Security, AppSec, AI and agent security, identity, trust, and security platforms.">
-    <link rel="canonical" href="https://appseccharlie.com/">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <meta name="theme-color" content="#1B1B25">
-    <meta name="author" content="Charlie Williams">
-
-    <meta property="og:title" content="Charlie Williams | Technical Security Leader">
-    <meta property="og:description" content="Technical security leader with a Staff-level security engineering background across Product Security, AppSec, AI and agent security, identity, trust, and security platforms.">
-    <meta property="og:url" content="https://appseccharlie.com/">
-    <meta property="og:type" content="profile">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://www.google-analytics.com">
-
-    <link rel="preload" as="style" href="css/styles.css" fetchpriority="high">
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet" />
-
-    <link rel="preload" as="script" href="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S85VD3EJY5"></script>
-    <script defer src="assets/js/gtag-init.js"></script>
-
-    <link rel="stylesheet" href="css/styles.css">
-
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-</head>
-
-<body>
-    <div class="container">
-        <header class="title">
-            <h1>Charlie Williams</h1>
-            <span class="carousel-accessible-label visually-hidden">Application Security, Product Security, AI Security, Agent Security, Platform Security, Data Security</span>
-            <div class="slider-container" aria-hidden="true">
-                <div class="vwrap">
-                    <div class="vmove">
-                        <div class="vslide">Application</div>
-                        <div class="vslide">Product</div>
-                        <div class="vslide">AI</div>
-                        <div class="vslide">Agent</div>
-                        <div class="vslide">Platform</div>
-                        <div class="vslide">Data</div>
-                    </div>
-                </div>
-                <div class="fixed-text">Security</div>
-            </div>
-
-            <ul class="icon-list" aria-label="Technologies">
-                <li>
-                    <img class="tech-icon tech-icon--github" src="assets/logos/github-icon.svg" alt="GitHub" title="GitHub">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--github-actions" src="assets/logos/github-actions.svg" alt="GitHub Actions" title="GitHub Actions">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--claude" src="assets/logos/claude-icon.svg" alt="Claude" title="Claude">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--github-copilot" src="assets/logos/github-copilot.svg" alt="GitHub Copilot" title="GitHub Copilot">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--python" src="assets/logos/python.svg" alt="Python" title="Python">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--aws" src="assets/logos/aws.svg" alt="AWS" title="AWS">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--terraform" src="assets/logos/terraform-icon.svg" alt="Terraform" title="Terraform">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--snowflake" src="assets/logos/snowflake-icon.svg" alt="Snowflake" title="Snowflake">
-                </li>
-                <li>
-                    <img class="tech-icon tech-icon--dbt" src="assets/logos/dbt-icon.svg" alt="dbt" title="dbt">
-                </li>
+---
+layout: layouts/base.njk
+metaTitle: Charlie Williams | Technical Security Leader
+description: Technical security leader with a Staff-level security engineering background across Product Security, AppSec, AI and agent security, identity, trust, and security platforms.
+canonicalUrl: https://appseccharlie.com/
+ogType: profile
+---
+        <nav class="routes-strip" aria-label="Homepage routes">
+            <span class="routes-label">ROUTES /</span>
+            <ul class="route-links">
+                {% for route in site.contactRoutes %}
+                <li><a href="{{ route.href }}"{% if route.external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if route.ariaLabel %} aria-label="{{ route.ariaLabel }}"{% endif %}>{{ route.label }}</a></li>
+                {% endfor %}
             </ul>
-
-            <ul class="social-links" aria-label="Social links">
-                <li>
-                    <a href="mailto:this@appseccharlie.com" aria-label="Email">
-                        this@appseccharlie.com
-                    </a>
-                </li>
-                <li>
-                    <a href="https://linkedin.com/in/charlie-williams3" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                        linkedin/charlie-williams3
-                    </a>
-                </li>
-                <li>
-                    <a href="https://github.com/appseccharlie" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                        github/AppSecCharlie
-                    </a>
-                </li>
-                <li>
-                    <a href="https://x.com/AppSecCharlie" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-                        x/@AppSecCharlie
-                    </a>
-                </li>
-            </ul>
-
-            <hr />
-        </header>
+        </nav>
 
         <main>
-            <section class="summary">
-                <h2>Technical Security Leader</h2>
+            <section class="summary" id="about">
+                <p class="section-label">FIELD 01 / PROFILE</p>
                 <p class="supporting-positioning">AppSec · AI Security · Identity &amp; Trust</p>
                 <p>
                     I lead Product Security at Upside, with a background in Application Security and security engineering. I stay hands-on in architecture and engineering
@@ -124,6 +28,10 @@
                     and workflows that hold up in practice. A recurring theme is the trust boundary: what people, services, or agents are allowed to do, and under what
                     conditions. Those boundaries increasingly cut across traditional security domains and org charts.
                 </p>
+            </section>
+
+            <section class="capabilities">
+                <h2 class="section-label">FIELD 02 / CAPABILITIES</h2>
                 <div class="skills">
                     <div>
                         <span><b>Product &amp; Application Security</b></span>
@@ -161,7 +69,7 @@
             <hr />
 
             <section class="work-experience">
-                <h2>Work Experience</h2>
+                <h2 class="section-label" aria-label="Work Experience">FIELD 03 / EXPERIENCE</h2>
                 <div class="experience">
                     <div class="experience-title">
                         <div>
@@ -256,8 +164,6 @@
                 </div>
             </section>
         </main>
-    </div>
-
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -290,6 +196,3 @@
                 }
             }
         </script>
-</body>
-
-</html>

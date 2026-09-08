@@ -1,0 +1,23 @@
+---
+layout: layouts/base.njk
+containerClass: notes-container
+ogType: article
+---
+<main>
+    <article class="field-note">
+        <header>
+            <div class="note-meta">
+                <span class="note-number">FIELD NOTE {{ collections.fieldNotes | fieldNoteNumber(page.url) }}</span>
+                <time datetime="{{ date | htmlDateString }}">{{ date | journalDate }}</time>
+            </div>
+            <h1>{{ title }}</h1>
+            <p class="note-dek">{{ description }}</p>
+        </header>
+        <div class="note-body">
+            {{ content | safe }}
+        </div>
+        <footer>
+            <a href="/field-notes/">Back to Field Notes</a>
+        </footer>
+    </article>
+</main>
