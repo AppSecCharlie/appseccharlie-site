@@ -179,7 +179,10 @@ hr {
 }
 
 .routes-label {
+  display: inline-flex;
+  align-items: center;
   flex: none;
+  min-block-size: 2.25rem;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 550;
@@ -212,7 +215,7 @@ hr {
   display: inline-flex;
   align-items: center;
   min-block-size: 2.25rem;
-  color: var(--graphite);
+  color: var(--ballpoint);
   text-decoration-color: currentColor;
 }
 
@@ -562,6 +565,12 @@ main {
 
   .dates {
     text-align: start;
+  }
+}
+
+@media (min-width: 37.501rem) {
+  .routes-strip {
+    margin-block-start: -0.625rem;
   }
 }
 

@@ -131,19 +131,32 @@ test('homepage routes expose the footer destinations above the centered Profile 
     const summaryBox = summary.getBoundingClientRect();
     return {
       routesAfterHeader: routesBox.top >= headerBox.bottom,
+      headerGap: routesBox.top - headerBox.bottom,
+      headerMarginEnd: Number.parseFloat(getComputedStyle(header).marginBlockEnd),
       routesBeforeProfile: routesBox.bottom <= summaryBox.top,
       alignedRight: Math.abs(routesBox.right - summaryBox.right),
       routesPosition: getComputedStyle(routeStrip).position,
       labelColor: getComputedStyle(routeStrip.querySelector('.routes-label')).color,
-      labelFont: getComputedStyle(routeStrip.querySelector('.routes-label')).fontFamily
+      labelFont: getComputedStyle(routeStrip.querySelector('.routes-label')).fontFamily,
+      linkColor: getComputedStyle(routeStrip.querySelector('a')).color,
+      midlineOffset: Math.abs(
+        routeStrip.querySelector('.routes-label').getBoundingClientRect().top
+          + (routeStrip.querySelector('.routes-label').getBoundingClientRect().height / 2)
+          - routeStrip.querySelector('a').getBoundingClientRect().top
+          - (routeStrip.querySelector('a').getBoundingClientRect().height / 2)
+      )
     };
   });
   expect(geometry.routesAfterHeader).toBe(true);
+  expect(geometry.headerMarginEnd - geometry.headerGap).toBeGreaterThanOrEqual(8);
+  expect(geometry.headerMarginEnd - geometry.headerGap).toBeLessThanOrEqual(12);
   expect(geometry.routesBeforeProfile).toBe(true);
   expect(geometry.alignedRight).toBeLessThanOrEqual(1);
   expect(geometry.routesPosition).not.toBe('sticky');
   expect(geometry.labelColor).toBe('rgb(102, 100, 95)');
   expect(geometry.labelFont).toMatch(/ui-monospace|SFMono-Regular|Cascadia Code|Consolas/);
+  expect(geometry.linkColor).toBe('rgb(49, 95, 141)');
+  expect(geometry.midlineOffset).toBeLessThanOrEqual(1);
 });
 
 test('homepage substantive rails are centered on wide screens while their text remains left aligned', async ({ page }) => {
@@ -565,65 +578,12 @@ for (const viewport of [
     )))).toBe(true);
   });
 
-  test(`captures inspected ${viewport.name} top, summary, and work-experience screenshots`, async ({ page }) => {
+  test(`captures the canonical ${viewport.name} homepage screenshot`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await loadPage(page);
-    const aboutBottom = await page.locator('.summary > p:not(.supporting-positioning):not(.section-label)').last().evaluate((element) => {
-      const box = element.getBoundingClientRect();
-      return Math.ceil(box.bottom + window.scrollY + 24);
-    });
-    if (aboutBottom > viewport.height) {
-      await page.setViewportSize({ width: viewport.width, height: aboutBottom });
-    }
     await page.screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-homepage-top-through-about.png`,
-      clip: { x: 0, y: 0, width: viewport.width, height: aboutBottom }
+      path: `test-artifacts/screenshots/homepage-${viewport.name}.png`,
+      fullPage: true
     });
-
-    await page.locator('section.capabilities').screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-homepage-capabilities.png`
-    });
-
-    await page.locator('.work-experience').screenshot({
-      path: `test-artifacts/screenshots/${viewport.name}-homepage-experience.png`
-    });
-
-    if (viewport.name === 'desktop') {
-      await page.locator('.capabilities').evaluate((element) => {
-        document.documentElement.style.scrollBehavior = 'auto';
-        element.scrollIntoView({ block: 'start' });
-      });
-      await page.screenshot({
-        path: 'test-artifacts/screenshots/desktop-homepage-capabilities-into-experience.png',
-        clip: { x: 0, y: 0, width: viewport.width, height: viewport.height }
-      });
-      await page.screenshot({
-        path: 'test-artifacts/screenshots/desktop-homepage-full.png',
-        fullPage: true
-      });
-      await page.locator('.experience').nth(2).scrollIntoViewIfNeeded();
-      await page.screenshot({
-        path: 'test-artifacts/screenshots/desktop-homepage-experience-sticky.png'
-      });
-    } else {
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({
-        path: 'test-artifacts/screenshots/mobile-homepage-header-routes-field-01.png',
-        clip: { x: 0, y: 0, width: viewport.width, height: viewport.height }
-      });
-      await page.locator('.experience').nth(1).scrollIntoViewIfNeeded();
-      await page.screenshot({
-        path: 'test-artifacts/screenshots/mobile-homepage-scrolled-sticky-header.png'
-      });
-    }
   });
 }
-
-test('captures the centered homepage Profile on a wide monitor', async ({ page }) => {
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  await loadPage(page);
-  await page.screenshot({
-    path: 'test-artifacts/screenshots/wide-homepage-top-through-profile.png',
-    clip: { x: 0, y: 0, width: 1920, height: 1080 }
-  });
-});

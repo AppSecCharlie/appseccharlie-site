@@ -171,10 +171,6 @@ for (const viewport of [
       path: `test-artifacts/screenshots/field-note-001-${viewport.name}.png`,
       fullPage: true
     });
-    await page.locator('.note-body p').nth(2).scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: `test-artifacts/screenshots/field-note-001-${viewport.name}-scrolled-sticky-header.png`
-    });
 
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
