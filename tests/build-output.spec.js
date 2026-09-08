@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const outputRoot = path.resolve('_site');
@@ -14,7 +14,6 @@ test('build emits the homepage and required static files', async () => {
     '.well-known/security.txt',
     'css/styles.css',
     'assets/favicon.svg',
-    'assets/favicon.ico',
     'assets/js/gtag-init.js'
   ];
 
@@ -33,10 +32,15 @@ test('build emits the homepage and required static files', async () => {
   expect(homepage).toContain('application/ld+json');
   expect(homepage).toContain('<meta name="theme-color" content="#F4F1E8">');
   expect(homepage).toContain('href="/assets/favicon.svg" type="image/svg+xml" sizes="any"');
-  expect(homepage).toContain('href="/assets/favicon.ico" type="image/x-icon"');
-  expect(homepage).not.toContain('favicon-light.svg');
-  expect(homepage).not.toContain('favicon-dark.svg');
   expect(homepage).not.toContain('prefers-color-scheme');
+  expect(homepage.match(/<link rel="icon"/g)).toHaveLength(1);
+
+  const sourceFavicons = (await readdir(path.resolve('src/assets')))
+    .filter((filename) => filename.startsWith('favicon'));
+  const outputFavicons = (await readdir(path.join(outputRoot, 'assets')))
+    .filter((filename) => filename.startsWith('favicon'));
+  expect(sourceFavicons).toEqual(['favicon.svg']);
+  expect(outputFavicons).toEqual(['favicon.svg']);
   expect(homepage).not.toContain('fonts.googleapis.com');
   expect(homepage).not.toContain('fonts.gstatic.com');
 
