@@ -46,10 +46,9 @@
         <footer class="site-footer">
             <nav aria-label="Contact">
                 <ul class="contact-links">
-                    <li><a href="mailto:this@appseccharlie.com" aria-label="Email">Email</a></li>
-                    <li><a href="https://linkedin.com/in/charlie-williams3" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-                    <li><a href="https://github.com/appseccharlie" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-                    <li><a href="https://x.com/AppSecCharlie" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">X</a></li>
+                    {% for route in site.contactRoutes %}
+                    <li><a href="{{ route.href }}"{% if route.external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if route.ariaLabel %} aria-label="{{ route.ariaLabel }}"{% endif %}>{{ route.label }}</a></li>
+                    {% endfor %}
                 </ul>
             </nav>
         </footer>

@@ -60,6 +60,16 @@ async function loadPage(page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+async function expectStickyHeader(page) {
+  const header = page.locator('.site-header');
+  await expect(header).toHaveCSS('position', 'sticky');
+  await expect(header).toHaveCSS('top', '0px');
+  await expect(header).toHaveCSS('background-color', 'rgb(244, 241, 232)');
+  await expect(header).toHaveCSS('box-shadow', 'none');
+  expect(Number.parseInt(await header.evaluate((element) => getComputedStyle(element).zIndex), 10))
+    .toBeGreaterThan(0);
+}
+
 test('homepage loads without uncaught errors and applies its production stylesheet', async ({ page }) => {
   const browserErrors = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
@@ -85,6 +95,78 @@ test('shared header identifies the site and links to About and Field Notes', asy
   await expect(header.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about');
   await expect(header.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('href', '/field-notes/');
   await expect(page.locator('#about')).toHaveCount(1);
+});
+
+test('shared header stays visible while scrolling and About clears it', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loadPage(page);
+  await expectStickyHeader(page);
+
+  await page.locator('.experience').nth(2).scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(300);
+  expect(Math.abs(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().top)))
+    .toBeLessThanOrEqual(1);
+  await expect(page.locator('.site-name')).toBeVisible();
+  await expect(page.locator('.site-nav')).toBeVisible();
+
+  await page.locator('.site-header').getByRole('link', { name: 'About' }).click();
+  await expect.poll(() => page.locator('#about').evaluate((element) => {
+    const header = document.querySelector('.site-header').getBoundingClientRect();
+    return element.getBoundingClientRect().top - header.bottom;
+  })).toBeGreaterThanOrEqual(16);
+});
+
+test('homepage routes expose the footer destinations above the centered Profile rail', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await loadPage(page);
+
+  const routes = page.getByRole('navigation', { name: 'Homepage routes' });
+  await expect(routes.locator('.routes-label')).toHaveText('ROUTES /');
+  for (const [label, href] of expectedSocialLinks) {
+    await expect(routes.getByRole('link', { name: label })).toHaveAttribute('href', href);
+  }
+  const geometry = await page.locator('.site-header, .routes-strip, .summary').evaluateAll(([header, routeStrip, summary]) => {
+    const headerBox = header.getBoundingClientRect();
+    const routesBox = routeStrip.getBoundingClientRect();
+    const summaryBox = summary.getBoundingClientRect();
+    return {
+      routesAfterHeader: routesBox.top >= headerBox.bottom,
+      routesBeforeProfile: routesBox.bottom <= summaryBox.top,
+      alignedRight: Math.abs(routesBox.right - summaryBox.right),
+      routesPosition: getComputedStyle(routeStrip).position,
+      labelColor: getComputedStyle(routeStrip.querySelector('.routes-label')).color,
+      labelFont: getComputedStyle(routeStrip.querySelector('.routes-label')).fontFamily
+    };
+  });
+  expect(geometry.routesAfterHeader).toBe(true);
+  expect(geometry.routesBeforeProfile).toBe(true);
+  expect(geometry.alignedRight).toBeLessThanOrEqual(1);
+  expect(geometry.routesPosition).not.toBe('sticky');
+  expect(geometry.labelColor).toBe('rgb(102, 100, 95)');
+  expect(geometry.labelFont).toMatch(/ui-monospace|SFMono-Regular|Cascadia Code|Consolas/);
+});
+
+test('homepage substantive rails are centered on wide screens while their text remains left aligned', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await loadPage(page);
+
+  const layout = await page.locator('.container, .summary, .capabilities, .work-experience').evaluateAll(
+    ([container, ...rails]) => {
+      const containerBox = container.getBoundingClientRect();
+      const center = containerBox.left + (containerBox.width / 2);
+      return rails.map((rail) => {
+        const box = rail.getBoundingClientRect();
+        return {
+          centerOffset: Math.abs((box.left + (box.width / 2)) - center),
+          width: box.width,
+          textAlign: getComputedStyle(rail).textAlign
+        };
+      });
+    }
+  );
+  expect(layout.every(({ centerOffset }) => centerOffset <= 1)).toBe(true);
+  expect(layout.every(({ width }) => width <= 800)).toBe(true);
+  expect(layout.every(({ textAlign }) => textAlign === 'start' || textAlign === 'left')).toBe(true);
 });
 
 test('blocks production Google Analytics traffic during browser tests', async ({ page }) => {
@@ -146,7 +228,7 @@ test('renders the expected contact destinations in the shared footer', async ({ 
   }
 });
 
-test('header and footer links have a sensible keyboard order and visible focus', async ({ page }) => {
+test('header, homepage routes, and footer links have a sensible keyboard order and visible focus', async ({ page }) => {
   await loadPage(page);
 
   await page.keyboard.press('Tab');
@@ -155,6 +237,12 @@ test('header and footer links have a sensible keyboard order and visible focus',
   await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+
+  const routeLinks = page.locator('.route-links a');
+  for (let index = 0; index < await routeLinks.count(); index += 1) {
+    await page.keyboard.press('Tab');
+    await expect(routeLinks.nth(index)).toBeFocused();
+  }
 
   const links = page.locator('.contact-links a');
   for (let index = 0; index < await links.count(); index += 1) {
@@ -468,6 +556,13 @@ for (const viewport of [
     expect(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().height))
       .toBeLessThanOrEqual(64);
     await expect(page.locator('.visual-signature, .slider-container, .icon-list')).toHaveCount(0);
+    const routes = page.locator('.routes-strip');
+    await expect(routes).toBeVisible();
+    expect(await routes.evaluate((element) => element.getBoundingClientRect().right))
+      .toBeLessThanOrEqual(viewport.width);
+    expect(await routes.locator('a').evaluateAll((links) => links.every((link) => (
+      link.getBoundingClientRect().height >= 36
+    )))).toBe(true);
   });
 
   test(`captures inspected ${viewport.name} top, summary, and work-experience screenshots`, async ({ page }) => {
@@ -506,6 +601,29 @@ for (const viewport of [
         path: 'test-artifacts/screenshots/desktop-homepage-full.png',
         fullPage: true
       });
+      await page.locator('.experience').nth(2).scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: 'test-artifacts/screenshots/desktop-homepage-experience-sticky.png'
+      });
+    } else {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: 'test-artifacts/screenshots/mobile-homepage-header-routes-field-01.png',
+        clip: { x: 0, y: 0, width: viewport.width, height: viewport.height }
+      });
+      await page.locator('.experience').nth(1).scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: 'test-artifacts/screenshots/mobile-homepage-scrolled-sticky-header.png'
+      });
     }
   });
 }
+
+test('captures the centered homepage Profile on a wide monitor', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await loadPage(page);
+  await page.screenshot({
+    path: 'test-artifacts/screenshots/wide-homepage-top-through-profile.png',
+    clip: { x: 0, y: 0, width: 1920, height: 1080 }
+  });
+});

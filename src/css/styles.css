@@ -78,11 +78,15 @@ hr {
 }
 
 .site-header {
+  position: sticky;
+  z-index: 10;
+  inset-block-start: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
   min-block-size: 3.75rem;
+  background: var(--paper);
   border-block-end: 1px solid var(--rule);
   margin-block-end: clamp(2.5rem, 6vw, 4.75rem);
   font-size: 0.9rem;
@@ -160,6 +164,63 @@ hr {
   text-decoration-color: currentColor;
 }
 
+.routes-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0 var(--space-3);
+  inline-size: 100%;
+  max-inline-size: var(--measure-wide);
+  margin: 0 auto var(--space-5);
+  color: var(--graphite);
+  font-size: 0.82rem;
+  text-align: end;
+}
+
+.routes-label {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 550;
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+}
+
+.route-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.route-links li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.route-links li:not(:last-child)::after {
+  content: '·';
+  color: var(--graphite);
+}
+
+.route-links a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.25rem;
+  color: var(--graphite);
+  text-decoration-color: currentColor;
+}
+
+.route-links a:hover,
+.route-links a:focus-visible {
+  color: var(--ballpoint);
+}
+
 .section-label,
 .note-meta {
   font-family: var(--font-mono);
@@ -178,10 +239,11 @@ main {
 .capabilities,
 .work-experience {
   max-inline-size: var(--measure-wide);
+  margin-inline: auto;
 }
 
 .summary {
-  scroll-margin-block-start: var(--space-5);
+  scroll-margin-block-start: calc(3.75rem + var(--space-5));
 }
 
 .summary .supporting-positioning {

@@ -5,6 +5,15 @@ description: Technical security leader with a Staff-level security engineering b
 canonicalUrl: https://appseccharlie.com/
 ogType: profile
 ---
+        <nav class="routes-strip" aria-label="Homepage routes">
+            <span class="routes-label">ROUTES /</span>
+            <ul class="route-links">
+                {% for route in site.contactRoutes %}
+                <li><a href="{{ route.href }}"{% if route.external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if route.ariaLabel %} aria-label="{{ route.ariaLabel }}"{% endif %}>{{ route.label }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+
         <main>
             <section class="summary" id="about">
                 <p class="section-label">FIELD 01 / PROFILE</p>

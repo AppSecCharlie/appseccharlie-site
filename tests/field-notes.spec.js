@@ -21,6 +21,14 @@ async function expectPrimaryNavigation(page) {
   await expect(navigation.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('href', '/field-notes/');
 }
 
+async function expectStickyHeader(page) {
+  const header = page.locator('.site-header');
+  await expect(header).toHaveCSS('position', 'sticky');
+  await expect(header).toHaveCSS('top', '0px');
+  await expect(header).toHaveCSS('background-color', 'rgb(244, 241, 232)');
+  await expect(header).toHaveCSS('box-shadow', 'none');
+}
+
 test('navigates between Home and the production Field Notes index', async ({ page }) => {
   await page.goto('/');
   await expectPrimaryNavigation(page);
@@ -56,11 +64,32 @@ test('Field Notes keeps the homepage signature out and includes the shared conta
   await page.goto('/field-notes/');
 
   await expect(page.locator('.visual-signature')).toHaveCount(0);
+  await expect(page.locator('.routes-strip')).toHaveCount(0);
   const footer = page.locator('.site-footer');
   await expect(footer.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:this@appseccharlie.com');
   await expect(footer.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/in/charlie-williams3');
   await expect(footer.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/appseccharlie');
   await expect(footer.getByRole('link', { name: 'X (Twitter)' })).toHaveAttribute('href', 'https://x.com/AppSecCharlie');
+});
+
+test('Field Notes index and article keep the shared header sticky without homepage routes', async ({ page }) => {
+  for (const [path, shouldScroll] of [
+    ['/field-notes/', false],
+    ['/field-notes/turning-judgment-into-infrastructure/', true]
+  ]) {
+    await page.goto(path);
+    await expectStickyHeader(page);
+    await expect(page.locator('.routes-strip')).toHaveCount(0);
+
+    if (shouldScroll) {
+      await page.locator('.site-footer').scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+      expect(Math.abs(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().top)))
+        .toBeLessThanOrEqual(1);
+      await expect(page.locator('.site-name')).toBeVisible();
+      await expect(page.locator('.site-nav')).toBeVisible();
+    }
+  }
 });
 
 test('publishes Field Notes index metadata using the site URL pattern', async ({ page }) => {
@@ -141,6 +170,10 @@ for (const viewport of [
     await page.screenshot({
       path: `test-artifacts/screenshots/field-note-001-${viewport.name}.png`,
       fullPage: true
+    });
+    await page.locator('.note-body p').nth(2).scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: `test-artifacts/screenshots/field-note-001-${viewport.name}-scrolled-sticky-header.png`
     });
 
     expect(pageErrors).toEqual([]);
