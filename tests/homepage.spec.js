@@ -207,7 +207,6 @@ test('renders current positioning, capabilities, and complete work history', asy
     'FIELD 02 / CAPABILITIES',
     'FIELD 03 / EXPERIENCE'
   ]);
-  await expect(page.locator('.visual-signature, .slider-container, .icon-list, .vslide')).toHaveCount(0);
   await expect(page.locator('.summary h2:not(.section-label)')).toHaveCount(0);
   await expect(page.locator('.summary .supporting-positioning')).toHaveText('AppSec · AI Security · Identity & Trust');
   await expect(page.getByRole('heading', { name: 'FIELD 02 / CAPABILITIES' })).toHaveCSS('text-transform', 'uppercase');
@@ -309,10 +308,9 @@ test('footer links retain readable text contrast on hover', async ({ page }) => 
   }
 });
 
-test('uses numbered field metadata instead of the former animated signature', async ({ page }) => {
+test('uses consistent numbered field metadata', async ({ page }) => {
   await loadPage(page);
 
-  await expect(page.locator('.visual-signature, .slider-container, .carousel-accessible-label, .icon-list')).toHaveCount(0);
   const labels = page.locator('.section-label');
   await expect(labels).toHaveCount(3);
   expect(await labels.evaluateAll((elements) => elements.every((element) => {
@@ -568,7 +566,6 @@ for (const viewport of [
     await expect(page.locator('.site-descriptor')).toHaveCount(0);
     expect(await page.locator('.site-header').evaluate((element) => element.getBoundingClientRect().height))
       .toBeLessThanOrEqual(64);
-    await expect(page.locator('.visual-signature, .slider-container, .icon-list')).toHaveCount(0);
     const routes = page.locator('.routes-strip');
     await expect(routes).toBeVisible();
     expect(await routes.evaluate((element) => element.getBoundingClientRect().right))

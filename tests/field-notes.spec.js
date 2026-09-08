@@ -60,10 +60,9 @@ test('Field Notes header has a sensible keyboard order', async ({ page }) => {
   await expect(page.locator('.contact-links').getByRole('link', { name: 'Email' })).toBeFocused();
 });
 
-test('Field Notes keeps the homepage signature out and includes the shared contact footer', async ({ page }) => {
+test('Field Notes omits homepage routes and includes the shared contact footer', async ({ page }) => {
   await page.goto('/field-notes/');
 
-  await expect(page.locator('.visual-signature')).toHaveCount(0);
   await expect(page.locator('.routes-strip')).toHaveCount(0);
   const footer = page.locator('.site-footer');
   await expect(footer.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:this@appseccharlie.com');

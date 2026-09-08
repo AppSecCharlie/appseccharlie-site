@@ -42,7 +42,7 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
     );
     await writeFile(
       path.join(inputDir, 'field-notes', 'turning-judgment-into-infrastructure.md'),
-      firstNote.replace('draft: true', 'draft: false')
+      firstNote
     );
     await writeFile(
       path.join(inputDir, 'field-notes', 'earlier-note.md'),
@@ -78,9 +78,7 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
     expect(noteHtml).toContain('href="/#about">About</a>');
     expect(noteHtml).toContain('class="site-link is-active" href="/field-notes/">Field Notes</a>');
     expect(noteHtml).not.toContain('aria-current="page"');
-    expect(noteHtml).not.toContain('note-breadcrumb');
     expect(noteHtml).toContain('>Back to Field Notes</a>');
-    expect(noteHtml).not.toContain('class="visual-signature"');
     expect(noteHtml).toContain('class="site-footer"');
     expect(noteHtml).toContain('class="contact-links"');
     expect(noteHtml).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/');

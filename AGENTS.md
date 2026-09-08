@@ -4,7 +4,7 @@
 
 This is the source for appseccharlie.com, a small static personal site.
 
-Production site content lives under `public/`.
+Editable site source lives under `src/`. Eleventy writes generated output to `_site/`.
 
 Keep changes focused. Do not redesign the site, rewrite approved copy, or add dependencies unless the task requires it.
 
@@ -36,9 +36,19 @@ Before completing changes:
 - For visual changes, capture and inspect desktop and mobile screenshots.
 - Keep generated Playwright reports, screenshots, traces, and test results out of git.
 
+## Field Notes
+
+- Field Notes source files live in `src/field-notes/`.
+- Add notes as Markdown, using an existing note as the front-matter example.
+- New notes should use `draft: true` unless they are explicitly intended for publication. Drafts are available through `npm run dev` but excluded from production builds.
+- Do not hard-code display note numbers in filenames, slugs, or article content. The site generates note numbering and index metadata.
+- Keep a note's filename-derived slug stable after publication.
+- Do not edit generated `_site/` output directly.
+- Run the production build and relevant tests before considering a note ready to publish.
+
 ## Style
 
-- Preserve the existing dark visual identity and green accent unless explicitly asked otherwise.
+- Preserve the existing paper, ink, graphite, and ballpoint-blue field-journal design unless explicitly asked otherwise.
 - Do not introduce em dashes in user-facing copy.
 - Do not change approved copy as a side effect of layout work.
 - Prefer minimal dependencies and simple static-site solutions.
