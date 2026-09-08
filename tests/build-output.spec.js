@@ -12,10 +12,7 @@ test('build emits the homepage and required static files', async () => {
     '.well-known/pub.asc',
     '.well-known/security.txt',
     'css/styles.css',
-    'assets/favicon-light.svg',
-    'assets/favicon-dark.svg',
-    'assets/favicon-32x32.png',
-    'assets/favicon-16x16.png',
+    'assets/favicon.svg',
     'assets/favicon.ico',
     'assets/js/gtag-init.js'
   ];
@@ -34,9 +31,11 @@ test('build emits the homepage and required static files', async () => {
   expect(homepage).toContain('Technical Security Leader');
   expect(homepage).toContain('application/ld+json');
   expect(homepage).toContain('<meta name="theme-color" content="#F4F1E8">');
-  expect(homepage).toContain('href="/assets/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)"');
-  expect(homepage).toContain('href="/assets/favicon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)"');
+  expect(homepage).toContain('href="/assets/favicon.svg" type="image/svg+xml" sizes="any"');
   expect(homepage).toContain('href="/assets/favicon.ico" type="image/x-icon"');
+  expect(homepage).not.toContain('favicon-light.svg');
+  expect(homepage).not.toContain('favicon-dark.svg');
+  expect(homepage).not.toContain('prefers-color-scheme');
   expect(homepage).not.toContain('fonts.googleapis.com');
   expect(homepage).not.toContain('fonts.gstatic.com');
 
