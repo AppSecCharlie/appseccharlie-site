@@ -69,7 +69,9 @@ test('Pages deployment includes hidden production files', async () => {
   expect(workflow).toMatch(/include-hidden-files:\s*true/);
   expect(workflow).toContain('actions/upload-pages-artifact');
   expect(workflow).toContain('actions/deploy-pages');
-  expect(workflow).not.toContain('autorelease:');
+  expect(workflow).toContain('release:');
+  expect(workflow).toContain('needs: deploy');
+  expect(workflow).toMatch(/permissions:\s*\n\s*contents:\s*write/);
+  expect(workflow).toContain('gh release create');
   expect(workflow).not.toContain('actions/github-script');
-  expect(workflow).not.toMatch(/contents:\s*write/);
 });
