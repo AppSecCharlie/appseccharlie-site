@@ -39,6 +39,7 @@ test('navigates between Home and the production Field Notes index', async ({ pag
   await expectPrimaryNavigation(page);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveClass(/is-active/);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('link', { name: 'The Afterlife of a Bug Report' })).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toHaveCount(1);
 
   await page.getByRole('link', { name: 'Charlie Williams' }).click();
@@ -54,6 +55,8 @@ test('Field Notes header has a sensible keyboard order', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'The Afterlife of a Bug Report' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -105,23 +108,33 @@ test('publishes Field Notes index metadata using the site URL pattern', async ({
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
 });
 
-test('Field Notes index and article use deterministic journal metadata and approved copy', async ({ page }) => {
+test('Field Notes index and articles use deterministic journal metadata and approved copy', async ({ page }) => {
   await page.goto('/field-notes/');
 
   const summary = page.locator('.note-summary').first();
-  await expect(summary.locator('.note-number')).toHaveText('FIELD NOTE 001');
-  await expect(summary.locator('time')).toHaveText('06 SEP 2026');
-  await summary.getByRole('link', { name: 'Turning Judgment into Infrastructure' }).click();
+  await expect(summary.locator('.note-number')).toHaveText('FIELD NOTE 002');
+  await expect(summary.locator('time')).toHaveText('13 SEP 2026');
+  await summary.getByRole('link', { name: 'The Afterlife of a Bug Report' }).click();
 
-  await expect(page).toHaveURL(/\/field-notes\/turning-judgment-into-infrastructure\/$/);
+  await expect(page).toHaveURL(/\/field-notes\/the-afterlife-of-a-bug-report\/$/);
+  await expect(page.locator('.note-number')).toHaveText('FIELD NOTE 002');
+  await expect(page.locator('.field-note header time')).toHaveText('13 SEP 2026');
+  await expect(page.locator('.note-dek')).toHaveText("A small example of how public technical traces can become context for AI-assisted engineering long after they're created.");
+  await expect(page.locator('.note-body')).toContainText('Most of my code-related work happens in private enterprise repositories');
+  await expect(page.locator('.note-body a')).toHaveCount(2);
+  await expect(page.locator('.note-body a').first()).toHaveAttribute('href', 'https://github.com/actions/dependency-review-action/issues/892');
+  await expect(page.locator('.note-body a').nth(1)).toHaveAttribute('href', 'https://github.com/elementary-data/dbt-data-reliability/pull/1031');
+  await expect(page.locator('.note-body strong')).toHaveCount(1);
+  await expect(page.getByRole('link', { name: 'Back to Field Notes' })).toHaveAttribute('href', '/field-notes/');
+  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).toHaveClass(/is-active/);
+  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).not.toHaveAttribute('aria-current', 'page');
+
+  await page.goto('/field-notes/turning-judgment-into-infrastructure/');
   await expect(page.locator('.note-number')).toHaveText('FIELD NOTE 001');
   await expect(page.locator('.field-note header time')).toHaveText('06 SEP 2026');
   await expect(page.locator('.note-dek')).toHaveText('Encoding the repeatable parts of expert judgment into systems that can apply them consistently over time.');
   await expect(page.locator('.note-body')).toContainText('A lot of repeated work starts at the task layer: answer this question, review this change, make this decision.');
   await expect(page.locator('.note-body strong')).toHaveCount(2);
-  await expect(page.getByRole('link', { name: 'Back to Field Notes' })).toHaveAttribute('href', '/field-notes/');
-  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).toHaveClass(/is-active/);
-  await expect(page.getByRole('link', { name: 'Field Notes', exact: true })).not.toHaveAttribute('aria-current', 'page');
 });
 
 test('Field Notes use the paper palette, editorial measure, and sans/serif/mono type roles', async ({ page }) => {
@@ -162,14 +175,19 @@ for (const viewport of [
       fullPage: true
     });
 
-    const articleResponse = await page.goto('/field-notes/turning-judgment-into-infrastructure/');
-    expect(articleResponse?.ok()).toBe(true);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth))
-      .toBeLessThanOrEqual(viewport.width);
-    await page.screenshot({
-      path: `test-artifacts/screenshots/field-note-001-${viewport.name}.png`,
-      fullPage: true
-    });
+    for (const [path, noteNumber] of [
+      ['/field-notes/the-afterlife-of-a-bug-report/', '002'],
+      ['/field-notes/turning-judgment-into-infrastructure/', '001']
+    ]) {
+      const articleResponse = await page.goto(path);
+      expect(articleResponse?.ok()).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth))
+        .toBeLessThanOrEqual(viewport.width);
+      await page.screenshot({
+        path: `test-artifacts/screenshots/field-note-${noteNumber}-${viewport.name}.png`,
+        fullPage: true
+      });
+    }
 
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);

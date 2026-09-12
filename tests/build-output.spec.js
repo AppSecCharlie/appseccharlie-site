@@ -12,6 +12,8 @@ test('build emits the homepage and required static files', async () => {
     '.nojekyll',
     '.well-known/pub.asc',
     '.well-known/security.txt',
+    'robots.txt',
+    'sitemap.xml',
     'css/styles.css',
     'assets/favicon.svg',
     'assets/favicon.ico',
@@ -23,8 +25,7 @@ test('build emits the homepage and required static files', async () => {
   ));
 
   const homepage = await readFile(path.join(outputRoot, 'index.html'), 'utf8');
-  expect(homepage).not.toContain('<h1>Charlie Williams</h1>');
-  expect(homepage).not.toContain('id="about-heading"');
+  expect(homepage).toContain('<h1 class="supporting-positioning"><span class="visually-hidden">Charlie Williams, Technical Security Leader: </span>AppSec · AI Security · Identity &amp; Trust</h1>');
   expect(homepage).toContain('FIELD 01 / PROFILE');
   expect(homepage).toContain('FIELD 02 / CAPABILITIES');
   expect(homepage).toContain('FIELD 03 / EXPERIENCE');
@@ -37,6 +38,7 @@ test('build emits the homepage and required static files', async () => {
   expect(homepage).not.toContain('prefers-color-scheme');
   expect(homepage.match(/<link rel="icon"/g)).toHaveLength(2);
   expect(homepage.indexOf('/assets/favicon.svg')).toBeLessThan(homepage.indexOf('/assets/favicon.ico'));
+  expect(homepage.match(/<!--email_off-->\s*<li><a href="mailto:this@appseccharlie\.com"[^>]*>Email<\/a><\/li>\s*<!--\/email_off-->/g)).toHaveLength(2);
 
   const sourceFavicons = (await readdir(path.resolve('src/assets')))
     .filter((filename) => filename.startsWith('favicon'));
@@ -51,9 +53,23 @@ test('build emits the homepage and required static files', async () => {
   expect(stylesheet.toLowerCase()).not.toContain('#1ee97a');
   expect(stylesheet).toContain('--paper: #F4F1E8');
   expect(stylesheet).toContain('--ballpoint: #315F8D');
+
+  const sitemap = await readFile(path.join(outputRoot, 'sitemap.xml'), 'utf8');
+  expect(sitemap).toContain('https://appseccharlie.com/</loc>');
+  expect(sitemap).toContain('https://appseccharlie.com/field-notes/</loc>');
+  expect(sitemap).toContain('https://appseccharlie.com/field-notes/the-afterlife-of-a-bug-report/</loc>');
+  expect(sitemap).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/</loc>');
+
+  const robots = await readFile(path.join(outputRoot, 'robots.txt'), 'utf8');
+  expect(robots).toContain('Sitemap: https://appseccharlie.com/sitemap.xml');
 });
 
 test('Pages deployment includes hidden production files', async () => {
   const workflow = await readFile(pagesWorkflow, 'utf8');
   expect(workflow).toMatch(/include-hidden-files:\s*true/);
+  expect(workflow).toContain('actions/upload-pages-artifact');
+  expect(workflow).toContain('actions/deploy-pages');
+  expect(workflow).not.toContain('autorelease:');
+  expect(workflow).not.toContain('actions/github-script');
+  expect(workflow).not.toMatch(/contents:\s*write/);
 });

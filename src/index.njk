@@ -9,7 +9,9 @@ ogType: profile
             <span class="routes-label">ROUTES /</span>
             <ul class="route-links">
                 {% for route in site.contactRoutes %}
+                {% if route.label == 'Email' %}<!--email_off-->{% endif %}
                 <li><a href="{{ route.href }}"{% if route.external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if route.ariaLabel %} aria-label="{{ route.ariaLabel }}"{% endif %}>{{ route.label }}</a></li>
+                {% if route.label == 'Email' %}<!--/email_off-->{% endif %}
                 {% endfor %}
             </ul>
         </nav>
@@ -17,7 +19,7 @@ ogType: profile
         <main>
             <section class="summary" id="about">
                 <p class="section-label">FIELD 01 / PROFILE</p>
-                <p class="supporting-positioning">AppSec · AI Security · Identity &amp; Trust</p>
+                <h1 class="supporting-positioning"><span class="visually-hidden">Charlie Williams, Technical Security Leader: </span>AppSec · AI Security · Identity &amp; Trust</h1>
                 <p>
                     I lead Product Security at Upside, with a background in Application Security and security engineering. I stay hands-on in architecture and engineering
                     while managing the team, with current work spanning AppSec, authentication and account trust, AI security and enablement, and the data and automation
@@ -34,31 +36,31 @@ ogType: profile
                 <h2 class="section-label">FIELD 02 / CAPABILITIES</h2>
                 <div class="skills">
                     <div>
-                        <span><b>Product &amp; Application Security</b></span>
+                        <h3>Product &amp; Application Security</h3>
                         <span>Secure architecture + threat modeling</span>
                         <span>Code + software supply-chain security</span>
                         <span>Developer guardrails + secure defaults</span>
                     </div>
                     <div>
-                        <span><b>AI &amp; Agent Security</b></span>
+                        <h3>AI &amp; Agent Security</h3>
                         <span>MCP + agent trust boundaries</span>
                         <span>Delegated authority + permissions</span>
                         <span>Governance + observability</span>
                     </div>
                     <div>
-                        <span><b>Security Platforms &amp; Data</b></span>
+                        <h3>Security Platforms &amp; Data</h3>
                         <span>Policy-as-code + automation</span>
                         <span>Security telemetry + data models</span>
                         <span>Developer workflows + decision-grade metrics</span>
                     </div>
                     <div>
-                        <span><b>Trust, Fraud &amp; Abuse</b></span>
+                        <h3>Trust, Fraud &amp; Abuse</h3>
                         <span>Account trust + recovery</span>
                         <span>Fraud + abuse signals</span>
                         <span>Risk states + high-risk product controls</span>
                     </div>
                     <div>
-                        <span><b>Identity &amp; Authorization</b></span>
+                        <h3>Identity &amp; Authorization</h3>
                         <span>Authentication + authorization</span>
                         <span>Identity + access controls</span>
                         <span>Delegated permissions + least privilege</span>

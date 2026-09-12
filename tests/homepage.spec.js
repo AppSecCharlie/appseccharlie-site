@@ -76,8 +76,10 @@ test('homepage loads without uncaught errors and applies its production styleshe
 
   await loadPage(page);
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Charlie Williams' })).toHaveCount(0);
+  await expect(page.getByRole('heading', {
+    level: 1,
+    name: 'Charlie Williams, Technical Security Leader: AppSec · AI Security · Identity & Trust'
+  })).toHaveCount(1);
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 241, 232)');
   await expect(page.locator('body')).toHaveCSS('color', 'rgb(32, 32, 30)');
   await expect(page.locator('link[href*="fonts.googleapis.com"]')).toHaveCount(0);
@@ -207,17 +209,17 @@ test('renders current positioning, capabilities, and complete work history', asy
     'FIELD 02 / CAPABILITIES',
     'FIELD 03 / EXPERIENCE'
   ]);
-  await expect(page.locator('.summary h2:not(.section-label)')).toHaveCount(0);
-  await expect(page.locator('.summary .supporting-positioning')).toHaveText('AppSec · AI Security · Identity & Trust');
+  await expect(page.locator('.summary > h1.supporting-positioning')).toHaveCount(1);
+  await expect(page.locator('.summary .supporting-positioning')).toContainText('AppSec · AI Security · Identity & Trust');
   await expect(page.getByRole('heading', { name: 'FIELD 02 / CAPABILITIES' })).toHaveCSS('text-transform', 'uppercase');
   await expect(page.getByRole('heading', { name: 'Work Experience' })).toHaveCSS('text-transform', 'uppercase');
   await expect(page.locator('.summary > p:not(.supporting-positioning):not(.section-label)')).toHaveText(expectedSummary);
   await expect(page.locator('.work-experience')).toContainText('Manager, Product Security');
   await expect(page.locator('main')).not.toContainText('Staff Security Engineer');
 
-  await expect(page.locator('.skills b')).toHaveText(expectedCapabilities);
+  await expect(page.locator('.skills h3')).toHaveText(expectedCapabilities);
   expect(await page.locator('.skills > div').evaluateAll((groups) => groups.map((group) =>
-    [...group.querySelectorAll('span')].map((line) => line.textContent.trim())
+    [...group.querySelectorAll('h3, span')].map((line) => line.textContent.trim())
   ))).toEqual(expectedCapabilityGroups);
 
   const experiences = page.locator('.experience');
@@ -328,7 +330,7 @@ test('uses the accent for capability and job-title scan points while experience 
   const accent = 'rgb(49, 95, 141)';
   const ink = 'rgb(32, 32, 30)';
 
-  expect(await page.locator('.skills b').evaluateAll((elements) =>
+  expect(await page.locator('.skills h3').evaluateAll((elements) =>
     elements.every((element) => getComputedStyle(element).color === 'rgb(49, 95, 141)')
   )).toBe(true);
   expect(await page.locator('.work-experience h4').evaluateAll((elements) =>
@@ -341,7 +343,7 @@ test('uses the accent for capability and job-title scan points while experience 
     ), `${selector} should use ink`).toBe(true);
   }
 
-  await expect(page.locator('.skills b').first()).toHaveCSS('color', accent);
+  await expect(page.locator('.skills h3').first()).toHaveCSS('color', accent);
   await expect(page.locator('.work-experience h4').first()).toHaveCSS('color', accent);
   await expect(page.locator('.work-experience h3').first()).toHaveCSS('color', ink);
 });

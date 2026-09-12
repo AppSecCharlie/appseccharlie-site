@@ -48,7 +48,9 @@
             <nav aria-label="Contact">
                 <ul class="contact-links">
                     {% for route in site.contactRoutes %}
+                    {% if route.label == 'Email' %}<!--email_off-->{% endif %}
                     <li><a href="{{ route.href }}"{% if route.external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if route.ariaLabel %} aria-label="{{ route.ariaLabel }}"{% endif %}>{{ route.label }}</a></li>
+                    {% if route.label == 'Email' %}<!--/email_off-->{% endif %}
                     {% endfor %}
                 </ul>
             </nav>
