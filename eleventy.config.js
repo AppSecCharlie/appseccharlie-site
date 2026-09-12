@@ -21,6 +21,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ 'src/.well-known': '.well-known' });
   eleventyConfig.addPassthroughCopy({ 'src/CNAME': 'CNAME' });
   eleventyConfig.addPassthroughCopy({ 'src/.nojekyll': '.nojekyll' });
+  eleventyConfig.addPassthroughCopy({ 'src/robots.txt': 'robots.txt' });
 
   eleventyConfig.addFilter('readableDate', (date) => new Intl.DateTimeFormat('en-US', {
     month: 'short',

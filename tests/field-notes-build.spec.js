@@ -9,12 +9,24 @@ const execFileAsync = promisify(execFile);
 const projectRoot = path.resolve('.');
 const eleventyBinary = path.join(projectRoot, 'node_modules', '.bin', 'eleventy');
 
-test('production output publishes the approved first Field Note at its clean URL', async () => {
+test('production output publishes both Field Notes at their clean URLs', async () => {
   const indexHtml = await readFile(path.join(projectRoot, '_site', 'field-notes', 'index.html'), 'utf8');
 
+  expect(indexHtml).toContain('FIELD NOTE 002');
+  expect(indexHtml).toContain('13 SEP 2026');
+  expect(indexHtml).toContain('The Afterlife of a Bug Report');
   expect(indexHtml).toContain('FIELD NOTE 001');
   expect(indexHtml).toContain('06 SEP 2026');
   expect(indexHtml).toContain('Turning Judgment into Infrastructure');
+  expect(indexHtml.indexOf('The Afterlife of a Bug Report'))
+    .toBeLessThan(indexHtml.indexOf('Turning Judgment into Infrastructure'));
+  await expect(access(path.join(
+    projectRoot,
+    '_site',
+    'field-notes',
+    'the-afterlife-of-a-bug-report',
+    'index.html'
+  ))).resolves.toBeUndefined();
   await expect(access(path.join(
     projectRoot,
     '_site',
@@ -36,14 +48,6 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
       path.join(root, 'eleventy.config.js')
     );
 
-    const firstNote = await readFile(
-      path.join(projectRoot, 'src', 'field-notes', 'turning-judgment-into-infrastructure.md'),
-      'utf8'
-    );
-    await writeFile(
-      path.join(inputDir, 'field-notes', 'turning-judgment-into-infrastructure.md'),
-      firstNote
-    );
     await writeFile(
       path.join(inputDir, 'field-notes', 'earlier-note.md'),
       `---\ntitle: Earlier note\ndate: 2026-08-01\ndescription: An earlier published note.\ndraft: false\n---\n\nEarlier body.\n`
@@ -62,6 +66,7 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
       'turning-judgment-into-infrastructure',
       'index.html'
     ), 'utf8');
+    const sitemap = await readFile(path.join(outputDir, 'sitemap.xml'), 'utf8');
 
     expect(indexHtml.indexOf('Turning Judgment into Infrastructure'))
       .toBeLessThan(indexHtml.indexOf('Earlier note'));
@@ -82,6 +87,9 @@ test('published notes render Markdown at clean URLs in newest-first order', asyn
     expect(noteHtml).toContain('class="site-footer"');
     expect(noteHtml).toContain('class="contact-links"');
     expect(noteHtml).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/');
+    expect(sitemap).toContain('https://appseccharlie.com/field-notes/earlier-note/</loc>');
+    expect(sitemap).toContain('https://appseccharlie.com/field-notes/the-afterlife-of-a-bug-report/</loc>');
+    expect(sitemap).not.toContain('newer-draft');
   } finally {
     await rm(root, { recursive: true, force: true });
   }

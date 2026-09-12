@@ -82,6 +82,7 @@ hr {
   z-index: 10;
   inset-block-start: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
@@ -101,10 +102,21 @@ hr {
   white-space: nowrap;
 }
 
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .site-nav {
   display: flex;
   align-items: center;
   gap: var(--space-5);
+  margin-inline-start: auto;
   white-space: nowrap;
 }
 
@@ -311,7 +323,7 @@ main {
   margin-block-start: var(--space-1);
 }
 
-.skills b {
+.skills h3 {
   display: block;
   margin-block-end: var(--space-2);
   color: var(--ballpoint);
@@ -343,6 +355,10 @@ main {
   align-items: baseline;
 }
 
+.experience-title > * {
+  min-inline-size: 0;
+}
+
 .work-experience h3,
 .work-experience h4,
 .work-experience h5 {
@@ -369,13 +385,15 @@ main {
 }
 
 .dates {
-  min-inline-size: max-content;
+  min-inline-size: 0;
+  max-inline-size: 50%;
   color: var(--ink);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.035em;
   text-align: end;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .work-experience p {
@@ -422,6 +440,7 @@ main {
 
 .note-meta {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--space-4);
   color: var(--graphite);
@@ -434,6 +453,7 @@ main {
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .note-summary h2 a {
@@ -468,6 +488,7 @@ main {
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.06;
+  overflow-wrap: anywhere;
 }
 
 .note-dek {
@@ -477,6 +498,7 @@ main {
   font-family: var(--font-serif);
   font-size: clamp(1.15rem, 2.6vw, 1.4rem);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .note-body {
@@ -564,6 +586,7 @@ main {
   }
 
   .dates {
+    max-inline-size: none;
     text-align: start;
   }
 }
