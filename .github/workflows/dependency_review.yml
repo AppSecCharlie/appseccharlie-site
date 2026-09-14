@@ -8,4 +8,4 @@ permissions:
 
 jobs:
   dependency-review:
-    uses: appsecdemos/reusable-workflows/.github/workflows/pr_dependency_review.yml@12706429a5195016d062d56e9650400f6652eb98
+    uses: appsecdemos/reusable-workflows/.github/workflows/pr_dependency_review.yml@fb957a83115daf8f28e1e90311049fd8224e0ddb

@@ -80,4 +80,4 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
-    uses: appsecdemos/reusable-workflows/.github/workflows/semantic_release.yml@12706429a5195016d062d56e9650400f6652eb98
+    uses: appsecdemos/reusable-workflows/.github/workflows/semantic_release.yml@fb957a83115daf8f28e1e90311049fd8224e0ddb
