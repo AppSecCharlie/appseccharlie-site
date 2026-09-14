@@ -72,6 +72,7 @@ test('Pages deployment includes hidden production files', async () => {
   expect(workflow).toContain('release:');
   expect(workflow).toContain('needs: deploy');
   expect(workflow).toMatch(/permissions:\s*\n\s*contents:\s*write/);
-  expect(workflow).toContain('gh release create');
+  expect(workflow).toContain('uses: appsecdemos/reusable-workflows/.github/workflows/semantic_release.yml@12706429a5195016d062d56e9650400f6652eb98');
+  expect(workflow).not.toContain('gh release create');
   expect(workflow).not.toContain('actions/github-script');
 });
