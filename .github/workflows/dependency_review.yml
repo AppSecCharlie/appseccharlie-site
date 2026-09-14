@@ -1,0 +1,11 @@
+name: Dependency review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    uses: appsecdemos/reusable-workflows/.github/workflows/pr_dependency_review.yml@v1.3.0
