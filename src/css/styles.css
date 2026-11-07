@@ -386,14 +386,21 @@ main {
 
 .dates {
   min-inline-size: 0;
-  max-inline-size: 50%;
   color: var(--ink);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.035em;
   text-align: end;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+}
+
+.dates time,
+.date-end {
+  white-space: nowrap;
+}
+
+.date-end {
+  display: block;
 }
 
 .work-experience p {
@@ -586,8 +593,11 @@ main {
   }
 
   .dates {
-    max-inline-size: none;
     text-align: start;
+  }
+
+  .date-end {
+    display: inline-block;
   }
 }
 

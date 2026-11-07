@@ -9,9 +9,14 @@ const execFileAsync = promisify(execFile);
 const projectRoot = path.resolve('.');
 const eleventyBinary = path.join(projectRoot, 'node_modules', '.bin', 'eleventy');
 
-test('production output publishes both Field Notes at their clean URLs', async () => {
+test('production output publishes Field Notes at their clean URLs', async () => {
   const indexHtml = await readFile(path.join(projectRoot, '_site', 'field-notes', 'index.html'), 'utf8');
 
+  expect(indexHtml).toContain('FIELD NOTE 003');
+  expect(indexHtml).toContain('07 NOV 2026');
+  expect(indexHtml).toContain("The Org Chart Isn&#39;t the Trust Boundary");
+  expect(indexHtml.indexOf("The Org Chart Isn&#39;t the Trust Boundary"))
+    .toBeLessThan(indexHtml.indexOf('The Afterlife of a Bug Report'));
   expect(indexHtml).toContain('FIELD NOTE 002');
   expect(indexHtml).toContain('13 SEP 2026');
   expect(indexHtml).toContain('The Afterlife of a Bug Report');
@@ -20,6 +25,7 @@ test('production output publishes both Field Notes at their clean URLs', async (
   expect(indexHtml).toContain('Turning Judgment into Infrastructure');
   expect(indexHtml.indexOf('The Afterlife of a Bug Report'))
     .toBeLessThan(indexHtml.indexOf('Turning Judgment into Infrastructure'));
+  await expect(access(path.join(projectRoot, '_site', 'field-notes', 'the-org-chart-isnt-the-trust-boundary', 'index.html'))).resolves.toBeUndefined();
   await expect(access(path.join(
     projectRoot,
     '_site',

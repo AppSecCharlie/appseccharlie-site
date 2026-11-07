@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 const publishedPages = [
   '/',
   '/field-notes/',
+  '/field-notes/the-org-chart-isnt-the-trust-boundary/',
   '/field-notes/the-afterlife-of-a-bug-report/',
   '/field-notes/turning-judgment-into-infrastructure/'
 ];

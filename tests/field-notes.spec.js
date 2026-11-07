@@ -27,6 +27,7 @@ test('navigates between Home and the production Field Notes index', async ({ pag
   await expectPrimaryNavigation(page);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveClass(/is-active/);
   await expect(page.getByRole('link', { name: 'Field Notes' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('link', { name: "The Org Chart Isn't the Trust Boundary" })).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'The Afterlife of a Bug Report' })).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Turning Judgment into Infrastructure' })).toHaveCount(1);
 
@@ -43,6 +44,8 @@ test('Field Notes header has a sensible keyboard order', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'About' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Field Notes' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: "The Org Chart Isn't the Trust Boundary" })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'The Afterlife of a Bug Report' })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -99,7 +102,20 @@ test('publishes Field Notes index metadata using the site URL pattern', async ({
 test('Field Notes index and articles use deterministic journal metadata and approved copy', async ({ page }) => {
   await page.goto('/field-notes/');
 
-  const summary = page.locator('.note-summary').first();
+  const newest = page.locator('.note-summary').first();
+  await expect(newest.locator('.note-number')).toHaveText('FIELD NOTE 003');
+  await expect(newest.locator('time')).toHaveText('07 NOV 2026');
+  await newest.getByRole('link', { name: "The Org Chart Isn't the Trust Boundary" }).click();
+  await expect(page).toHaveURL(/\/field-notes\/the-org-chart-isnt-the-trust-boundary\/$/);
+  await expect(page.locator('.note-number')).toHaveText('FIELD NOTE 003');
+  await expect(page.locator('.field-note header time')).toHaveText('07 NOV 2026');
+  await expect(page.locator('.note-dek em')).toHaveText('The hard part comes after the prototype: making software safe to share and use, regardless of who built it.');
+  await expect(page.locator('.note-body strong')).toHaveText([
+    "The answers should determine the controls, not the builder's department.",
+    "The org chart still tells us who is responsible. It doesn't tell us where the trust boundaries belong."
+  ]);
+  await page.goto('/field-notes/');
+  const summary = page.locator('.note-summary').nth(1);
   await expect(summary.locator('.note-number')).toHaveText('FIELD NOTE 002');
   await expect(summary.locator('time')).toHaveText('13 SEP 2026');
   await summary.getByRole('link', { name: 'The Afterlife of a Bug Report' }).click();
@@ -164,6 +180,7 @@ for (const viewport of [
     });
 
     for (const [path, noteNumber] of [
+      ['/field-notes/the-org-chart-isnt-the-trust-boundary/', '003'],
       ['/field-notes/the-afterlife-of-a-bug-report/', '002'],
       ['/field-notes/turning-judgment-into-infrastructure/', '001']
     ]) {

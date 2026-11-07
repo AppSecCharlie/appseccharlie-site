@@ -71,6 +71,7 @@ test('build emits the homepage and required static files', async () => {
   const sitemap = await readFile(path.join(outputRoot, 'sitemap.xml'), 'utf8');
   expect(sitemap).toContain('https://appseccharlie.com/</loc>');
   expect(sitemap).toContain('https://appseccharlie.com/field-notes/</loc>');
+  expect(sitemap).toContain('https://appseccharlie.com/field-notes/the-org-chart-isnt-the-trust-boundary/</loc>');
   expect(sitemap).toContain('https://appseccharlie.com/field-notes/the-afterlife-of-a-bug-report/</loc>');
   expect(sitemap).toContain('https://appseccharlie.com/field-notes/turning-judgment-into-infrastructure/</loc>');
 

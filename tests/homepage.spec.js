@@ -34,7 +34,7 @@ const expectedSocialLinks = [
 ];
 
 const expectedSummary = [
-  'I lead Product Security at Upside, with a background in Application Security and security engineering. I stay hands-on in architecture and engineering while managing the team, with current work spanning AppSec, authentication and account trust, AI security and enablement, and the data and automation behind those programs.',
+  'I lead Product Security at Upside, managing a small team while staying hands-on in security architecture, code review, automation, and AI enablement. My work spans application and product security, authentication and account trust, fraud and abuse, and the infrastructure that helps people build software securely.',
   'My work often starts with ambiguity: understanding the problem, gathering enough evidence to make a decision, and turning that into systems, controls, and workflows that hold up in practice. A recurring theme is the trust boundary: what people, services, or agents are allowed to do, and under what conditions. Those boundaries increasingly cut across traditional security domains and org charts.'
 ];
 
@@ -216,9 +216,49 @@ test('renders current positioning, capabilities, and complete work history', asy
     await expect(experiences.nth(index).locator('h4')).toHaveText(role);
     await expect(experiences.nth(index).locator('.dates')).toHaveText(dates);
   }
-  await expect(experiences.nth(0)).toContainText('authentication and account-trust architecture');
+  await expect(experiences.nth(0)).toContainText('account-trust and authentication architecture');
   await expect(page.getByRole('heading', { name: 'Staff Application Security Engineer', exact: true })).toBeVisible();
   await expect(experiences.last().locator('h5')).toHaveText('Application Security');
+});
+
+test('experience dates stay together and align with the responsive layout', async ({ page }) => {
+  for (const width of [1440, 1180, 1024, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await loadPage(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+
+    const ranges = await page.locator('.experience-title').evaluateAll((titles) => titles.map((title) => {
+      const heading = title.firstElementChild.getBoundingClientRect();
+      const dates = title.querySelector('.dates');
+      const start = dates.querySelector(':scope > time').getBoundingClientRect();
+      const endElement = dates.querySelector('.date-end');
+      const end = endElement.getBoundingClientRect();
+      const endLines = document.createRange();
+      endLines.selectNodeContents(endElement);
+      return {
+        heading: { right: heading.right, bottom: heading.bottom },
+        start: { right: start.right, top: start.top, bottom: start.bottom },
+        end: { right: end.right, top: end.top, bottom: end.bottom },
+        dateLeft: dates.getBoundingClientRect().left,
+        dateRight: dates.getBoundingClientRect().right,
+        endLineCount: new Set([...endLines.getClientRects()].map((rect) => Math.round(rect.top))).size,
+        endText: endElement.textContent.trim()
+      };
+    }));
+
+    for (const range of ranges) {
+      expect(range.endText).toMatch(/^– /);
+      expect(range.endLineCount).toBe(1);
+      if (width >= 1024) {
+        expect(range.heading.right).toBeLessThanOrEqual(range.dateLeft);
+        expect(range.start.bottom).toBeLessThanOrEqual(range.end.top + 1);
+        expect(Math.abs(range.start.right - range.dateRight)).toBeLessThanOrEqual(1);
+        expect(Math.abs(range.end.right - range.dateRight)).toBeLessThanOrEqual(1);
+      } else {
+        expect(range.heading.bottom).toBeLessThanOrEqual(range.start.top);
+      }
+    }
+  }
 });
 
 test('renders the expected contact destinations in the shared footer', async ({ page }) => {
