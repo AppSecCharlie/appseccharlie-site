@@ -11,7 +11,7 @@ ogType: article
                 <time datetime="{{ date | htmlDateString }}">{{ date | journalDate }}</time>
             </div>
             <h1>{{ title }}</h1>
-            <p class="note-dek">{{ description }}</p>
+            <p class="note-dek">{% if italicDescription %}<em>{{ description }}</em>{% else %}{{ description }}{% endif %}</p>
         </header>
         <div class="note-body">
             {{ content | safe }}
