@@ -221,6 +221,46 @@ test('renders current positioning, capabilities, and complete work history', asy
   await expect(experiences.last().locator('h5')).toHaveText('Application Security');
 });
 
+test('experience dates stay together and align with the responsive layout', async ({ page }) => {
+  for (const width of [1440, 1180, 1024, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await loadPage(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+
+    const ranges = await page.locator('.experience-title').evaluateAll((titles) => titles.map((title) => {
+      const heading = title.firstElementChild.getBoundingClientRect();
+      const dates = title.querySelector('.dates');
+      const start = dates.querySelector(':scope > time').getBoundingClientRect();
+      const endElement = dates.querySelector('.date-end');
+      const end = endElement.getBoundingClientRect();
+      const endLines = document.createRange();
+      endLines.selectNodeContents(endElement);
+      return {
+        heading: { right: heading.right, bottom: heading.bottom },
+        start: { right: start.right, top: start.top, bottom: start.bottom },
+        end: { right: end.right, top: end.top, bottom: end.bottom },
+        dateLeft: dates.getBoundingClientRect().left,
+        dateRight: dates.getBoundingClientRect().right,
+        endLineCount: new Set([...endLines.getClientRects()].map((rect) => Math.round(rect.top))).size,
+        endText: endElement.textContent.trim()
+      };
+    }));
+
+    for (const range of ranges) {
+      expect(range.endText).toMatch(/^– /);
+      expect(range.endLineCount).toBe(1);
+      if (width >= 1024) {
+        expect(range.heading.right).toBeLessThanOrEqual(range.dateLeft);
+        expect(range.start.bottom).toBeLessThanOrEqual(range.end.top + 1);
+        expect(Math.abs(range.start.right - range.dateRight)).toBeLessThanOrEqual(1);
+        expect(Math.abs(range.end.right - range.dateRight)).toBeLessThanOrEqual(1);
+      } else {
+        expect(range.heading.bottom).toBeLessThanOrEqual(range.start.top);
+      }
+    }
+  }
+});
+
 test('renders the expected contact destinations in the shared footer', async ({ page }) => {
   await loadPage(page);
 
