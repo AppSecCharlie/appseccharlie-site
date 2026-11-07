@@ -2,7 +2,7 @@ name: Deploy and Release
 
 on:
   push:
-    branches: ["main", "ci/cloudflare-cutover"]
+    branches: ["main"]
   pull_request:
 
 permissions: {}
@@ -41,7 +41,7 @@ jobs:
         run: npm test
 
       - name: Upload tested site artifact
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ci/cloudflare-cutover')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tested-site-${{ github.run_id }}
@@ -65,7 +65,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ci/cloudflare-cutover')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
     environment:
