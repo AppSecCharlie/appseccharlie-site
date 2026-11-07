@@ -1,22 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const analyticsUrlPattern = /^https:\/\/[^/]*(?:google-analytics|googletagmanager)\.com\//;
-const analyticsCollectionUrlPattern = /^https:\/\/[^/]*google-analytics\.com\/.*collect/;
-const interceptedAnalyticsRequests = new WeakMap();
-
-test.beforeEach(async ({ page }) => {
-  const interceptedRequests = [];
-  interceptedAnalyticsRequests.set(page, interceptedRequests);
-  await page.route(analyticsUrlPattern, async (route) => {
-    const url = route.request().url();
-    interceptedRequests.push(url);
-    if (url.includes('googletagmanager.com')) {
-      await route.fulfill({ contentType: 'application/javascript', body: '' });
-    } else {
-      await route.abort('blockedbyclient');
-    }
-  });
-});
+const analyticsUrlPattern = /(?:^|\.)(?:google-analytics\.com|googletagmanager\.com|cloudflareinsights\.com)$/;
 
 const expectedCapabilities = [
   'Product & Application Security',
@@ -83,8 +67,8 @@ test('homepage loads without uncaught errors and applies its production styleshe
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 241, 232)');
   await expect(page.locator('body')).toHaveCSS('color', 'rgb(32, 32, 30)');
   await expect(page.locator('link[href*="fonts.googleapis.com"]')).toHaveCount(0);
-  expect(await page.evaluate(() => typeof window.gtag)).toBe('function');
-  expect(await page.evaluate(() => Array.isArray(window.dataLayer))).toBe(true);
+  expect(await page.evaluate(() => typeof window.gtag)).toBe('undefined');
+  expect(await page.evaluate(() => typeof window.dataLayer)).toBe('undefined');
   expect(browserErrors).toEqual([]);
 });
 
@@ -184,21 +168,25 @@ test('homepage substantive rails are centered on wide screens while their text r
   expect(layout.every(({ textAlign }) => textAlign === 'start' || textAlign === 'left')).toBe(true);
 });
 
-test('blocks production Google Analytics traffic during browser tests', async ({ page }) => {
-  const collectionResponses = [];
-  const consoleErrors = [];
-  page.on('response', (response) => {
-    if (analyticsCollectionUrlPattern.test(response.url())) collectionResponses.push(response.url());
-  });
-  page.on('console', (message) => {
-    if (message.type() === 'error') consoleErrors.push(message.text());
+test('published pages do not load Google Analytics or Cloudflare Web Analytics', async ({ page }) => {
+  const analyticsRequests = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (analyticsUrlPattern.test(url.hostname) || url.pathname.startsWith('/cdn-cgi/rum')) {
+      analyticsRequests.push(request.url());
+    }
   });
 
-  await loadPage(page);
-
-  expect(interceptedAnalyticsRequests.get(page).length).toBeGreaterThan(0);
-  expect(collectionResponses).toEqual([]);
-  expect(consoleErrors).toEqual([]);
+  for (const path of [
+    '/',
+    '/field-notes/',
+    '/field-notes/the-afterlife-of-a-bug-report/',
+    '/field-notes/turning-judgment-into-infrastructure/'
+  ]) {
+    await page.goto(path);
+    await expect(page.locator('script[src*="googletagmanager.com"], script[src*="google-analytics.com"], script[src*="cloudflareinsights.com"], script[data-cf-beacon]')).toHaveCount(0);
+  }
+  expect(analyticsRequests).toEqual([]);
 });
 
 test('renders current positioning, capabilities, and complete work history', async ({ page }) => {

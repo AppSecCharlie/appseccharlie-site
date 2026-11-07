@@ -3,11 +3,14 @@
   "private": true,
   "scripts": {
     "build": "eleventy",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --config wrangler.staging.jsonc",
     "dev": "eleventy --serve --port=4173",
     "test": "playwright test"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.6",
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.63.0",
+    "wrangler": "4.151.1"
   }
 }
