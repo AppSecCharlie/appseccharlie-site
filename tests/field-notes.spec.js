@@ -1,17 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-const analyticsUrlPattern = /^https:\/\/[^/]*(?:google-analytics|googletagmanager)\.com\//;
-
-test.beforeEach(async ({ page }) => {
-  await page.route(analyticsUrlPattern, async (route) => {
-    if (route.request().url().includes('googletagmanager.com')) {
-      await route.fulfill({ contentType: 'application/javascript', body: '' });
-    } else {
-      await route.abort('blockedbyclient');
-    }
-  });
-});
-
 async function expectPrimaryNavigation(page) {
   const header = page.locator('.site-header');
   const navigation = header.getByRole('navigation', { name: 'Primary' });

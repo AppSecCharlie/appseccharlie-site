@@ -12,8 +12,51 @@ Open <http://127.0.0.1:4173/>.
 
 Run `npm run build` before the Playwright browser tests with `npm test`.
 
-Eleventy builds the complete static site into `_site/`. The GitHub Actions
-workflow deploys that tested directory to GitHub Pages.
+Eleventy builds the complete static site into `_site/`. Once the Cloudflare
+migration is complete, the GitHub Actions workflow will build and test that
+directory once, upload it as a short-lived artifact, and deploy the same artifact
+to the dedicated `appseccharlie-site` Cloudflare Worker. The Worker uses Static
+Assets only; there is no application script or runtime backend.
+
+## Cloudflare deployment
+
+Production Wrangler configuration lives in `wrangler.jsonc`; its `workers.dev`
+and preview URLs are disabled. `wrangler.staging.jsonc` uses the separate
+`appseccharlie-site-staging` Worker and permits a temporary `workers.dev` URL
+for pre-cutover validation:
+
+```bash
+npm run build
+npm run deploy:staging
+PLAYWRIGHT_BASE_URL=https://<staging-worker>.workers.dev npm test
+```
+
+The staging endpoint is marked `noindex`. Remove or disable it after cutover.
+Do not attach the production custom domain until the staged deployment, DNS,
+TLS, redirects, and rollback plan have been reviewed.
+
+GitHub Actions deploys on pushes to `main`, uses the
+`cloudflare-production` deployment environment, and requires these repository
+secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+After the Worker and custom domain exist, scope the CI token to Editor access
+for the `appseccharlie-site` Worker only. The routine deployment does not need
+DNS write or Workers Routes write access. Custom-domain changes are a separate
+cutover operation and require Workers Routes write access for the
+`appseccharlie.com` zone.
+
+The site uses Cloudflare's edge Traffic Analytics. It does not load Google
+Analytics or the Cloudflare Web Analytics browser beacon. Keep automatic Web
+Analytics injection disabled. `src/_headers` preserves the site's security
+headers without allowing analytics script or collection origins.
+
+The Cloudflare response-header rule must use the same CSP at cutover; an older
+edge rule can override the Worker asset headers. Preserve all Proton Mail and
+Google Search Console DNS records. `src/CNAME` remains in the build until the
+replacement is live and the GitHub Pages rollback path is no longer needed.
 
 ## Field Notes
 
