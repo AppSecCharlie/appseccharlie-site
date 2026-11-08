@@ -1,0 +1,20 @@
+
+name: Dependabot automerge
+
+on:
+  workflow_run:
+    workflows: [Deploy and Release, Dependency review]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  automerge:
+    uses: appsecdemos/reusable-workflows/.github/workflows/dependabot_automerge.yml@v1.4.0
+    with:
+      dry_run: false
+    secrets:
+      app_client_id: ${{ secrets.AUTOMERGE_APP_CLIENT_ID }}
+      app_private_key: ${{ secrets.AUTOMERGE_APP_PRIVATE_KEY }}
